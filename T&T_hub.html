@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Programming Learning Hub</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" />
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#135bec",
+            "primary-light": "#00AEEF",
+            "background-light": "#f6f6f8",
+            "background-dark": "#101622",
+            "panel-dark": "rgba(40, 40, 40, 0.8)",
+            "text-light": "#E0E0E0",
+            "border-dark": "#444444",
+          },
+          fontFamily: { "display": ["Inter", "sans-serif"] },
+          borderRadius: {
+            "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"
+          },
+          backdropBlur: { 'xl': '24px' },
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #101622; font-family: 'Inter', sans-serif; }
+    .glassmorphism { background: rgba(40, 46, 57, 0.5); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+    .panel-dark { background-color: rgba(40, 40, 40, 0.8); }
+    .text-light { color: #E0E0E0; }
+  </style>
+</head>
+<body class="font-display dark:bg-background-dark bg-background-light">
+<!-- Mobile Menu Drawer -->
+<div id="mobileMenu" class="fixed z-[100] inset-y-0 right-0 w-4/5 max-w-xs bg-background-dark glassmorphism shadow-lg px-6 py-8 transform translate-x-full transition-transform duration-300 ease-in-out md:hidden flex flex-col gap-6" style="display:none;">
+  <div class="flex items-center justify-between mb-8">
+    <span class="font-bold text-xl text-primary">Menu</span>
+    <button onclick="toggleMenu()" class="p-2 hover:text-primary"><span class="material-symbols-outlined">close</span></button>
+  </div>
+  <a href="#home" onclick="toggleMenu()" class="py-2 text-lg font-medium hover:text-primary">Home</a>
+  <a href="#courses" onclick="toggleMenu()" class="py-2 text-lg font-medium hover:text-primary">Courses</a>
+  <a href="#progress" onclick="toggleMenu()" class="py-2 text-lg font-medium hover:text-primary">Progress</a>
+  <a href="#about" onclick="toggleMenu()" class="py-2 text-lg font-medium hover:text-primary">About</a>
+</div>
+
+<!-- Navigation Bar -->
+<nav class="sticky top-0 z-40 flex items-center justify-between w-full px-4 md:px-8 py-4 glassmorphism dark:bg-background-dark/60 bg-background-light/60">
+  <!-- Brand + Icon -->
+  <div class="flex items-center gap-2 sm:gap-3">
+    <span class="material-symbols-outlined text-primary text-3xl">neurology</span>
+    <span class="text-xl sm:text-2xl font-bold tracking-wide text-primary whitespace-nowrap">Programming Learning Hub</span>
+  </div>
+  <!-- Desktop Nav Links -->
+  <div class="hidden md:flex gap-4 lg:gap-8 text-base lg:text-lg font-semibold">
+    <a href="#home" class="hover:text-primary">Home</a>
+    <a href="#courses" class="hover:text-primary">Courses</a>
+    <a href="#progress" class="hover:text-primary">Progress</a>
+    <a href="#about" class="hover:text-primary">About</a>
+  </div>
+  <!-- Mobile Menu Button -->
+  <div class="md:hidden">
+    <button onclick="toggleMenu()" class="text-2xl cursor-pointer hover:text-primary">
+      <span class="material-symbols-outlined text-2xl">menu</span>
+    </button>
+  </div>
+</nav>
+
+<!-- Home Section -->
+<section id="home" class="w-full min-h-[60vh] flex items-center justify-center bg-background-light dark:bg-background-dark/70 pt-4 pb-12">
+  <div class="w-full max-w-2xl px-3 mx-auto py-10 sm:py-16">
+    <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-3">Learn Programming from Basics to Advanced</h1>
+    <p class="text-base sm:text-lg text-text-light mb-7">
+      Learn programming interactively and track your progress with our hands-on courses and projects. Master the skills you need to succeed in the tech industry.
+    </p>
+    <div class="flex flex-col sm:flex-row gap-3">
+      <input type="search" placeholder="search" class="w-full sm:w-auto flex-1 px-4 py-2 rounded-lg dark:bg-panel-dark bg-background-light border border-border-dark text-text-light" />
+      <button class="bg-primary text-white px-4 py-2 rounded-lg font-bold hover:bg-primary-light">Explore Courses</button>
+    </div>
+  </div>
+</section>
+
+<!-- Courses Section -->
+<section id="courses" class="w-full py-8 sm:py-12 dark:bg-background-dark bg-background-light">
+  <div class="max-w-5xl mx-auto px-2 sm:px-4">
+    <h2 class="text-xl sm:text-2xl font-bold text-primary mb-6 flex items-center gap-2">
+      <span class="material-symbols-outlined text-primary">group</span>
+      Explore Our Courses
+    </h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      <!-- Course Cards -->
+      <div class="glassmorphism p-5 sm:p-6 rounded-xl flex flex-col gap-2">
+        <div class="font-bold text-base sm:text-lg">C Language</div>
+        <div class="text-sm text-text-light">Learn the fundamentals of procedural programming.</div>
+        <button class="mt-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-light text-sm">Start Learning</button>
+      </div>
+      <div class="glassmorphism p-5 sm:p-6 rounded-xl flex flex-col gap-2">
+        <div class="font-bold text-base sm:text-lg">Python</div>
+        <div class="text-sm text-text-light">Master a versatile language for web and data science.</div>
+        <button class="mt-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-light text-sm">Start Learning</button>
+      </div>
+      <div class="glassmorphism p-5 sm:p-6 rounded-xl flex flex-col gap-2">
+        <div class="font-bold text-base sm:text-lg">C++</div>
+        <div class="text-sm text-text-light">Dive into object-oriented programming and performance.</div>
+        <button class="mt-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-light text-sm">Start Learning</button>
+      </div>
+      <div class="glassmorphism p-5 sm:p-6 rounded-xl flex flex-col gap-2">
+        <div class="font-bold text-base sm:text-lg">Java</div>
+        <div class="text-sm text-text-light">Build robust applications with this popular language.</div>
+        <button class="mt-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-light text-sm">Start Learning</button>
+      </div>
+      <div class="glassmorphism p-5 sm:p-6 rounded-xl flex flex-col gap-2">
+        <div class="font-bold text-base sm:text-lg">Go Lang</div>
+        <div class="text-sm text-text-light">Discover Google's efficient and concurrent language.</div>
+        <button class="mt-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-light text-sm">Start Learning</button>
+      </div>
+      <div class="glassmorphism p-5 sm:p-6 rounded-xl flex flex-col gap-2">
+        <div class="font-bold text-base sm:text-lg">HTML</div>
+        <div class="text-sm text-text-light">Start your web development journey with the core of the web.</div>
+        <button class="mt-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-light text-sm">Start Learning</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Progress Section -->
+<section id="progress" class="w-full py-8 sm:py-12 dark:bg-background-dark bg-background-light">
+  <div class="max-w-3xl mx-auto px-2 sm:px-4">
+    <h2 class="text-xl sm:text-2xl font-bold text-primary flex items-center gap-2 mb-6">
+      <span class="material-symbols-outlined text-primary">psychology</span>
+      Your Progress
+    </h2>
+    <div class="grid grid-cols-1 gap-5 glassmorphism p-5 sm:p-6 rounded-xl">
+      <p class="text-base sm:text-lg font-semibold text-primary mb-2">Total Topics Completed: <span class="font-bold">150</span></p>
+      <p class="text-sm sm:text-base text-text-light mb-3">Overall Progress: <span class="font-bold">60%</span></p>
+      <div class="space-y-4">
+        <!-- Progress by Language -->
+        <div class="glassmorphism p-3 rounded-lg flex flex-col gap-2">
+          <div class="flex flex-col xs:flex-row xs:items-center xs:justify-between">
+            <span class="text-base sm:text-lg font-bold">Python</span>
+            <span class="text-sm sm:text-base text-text-light">80/100 Topics Completed – 80%</span>
+          </div>
+          <div class="rounded-full bg-[#3b4354] h-2">
+            <div class="h-2 rounded-full bg-primary" style="width: 80%;"></div>
+          </div>
+          <a href="#python-details" class="text-primary hover:underline text-xs sm:text-sm" onclick="showTopics('python-details')">View Details</a>
+        </div>
+        <div class="glassmorphism p-3 rounded-lg flex flex-col gap-2">
+          <div class="flex flex-col xs:flex-row xs:items-center xs:justify-between">
+            <span class="text-base sm:text-lg font-bold">JavaScript</span>
+            <span class="text-sm sm:text-base text-text-light">50/100 Topics Completed – 50%</span>
+          </div>
+          <div class="rounded-full bg-[#3b4354] h-2">
+            <div class="h-2 rounded-full bg-primary" style="width: 50%;"></div>
+          </div>
+          <a href="#javascript-details" class="text-primary hover:underline text-xs sm:text-sm" onclick="showTopics('javascript-details')">View Details</a>
+        </div>
+        <div class="glassmorphism p-3 rounded-lg flex flex-col gap-2">
+          <div class="flex flex-col xs:flex-row xs:items-center xs:justify-between">
+            <span class="text-base sm:text-lg font-bold">HTML</span>
+            <span class="text-sm sm:text-base text-text-light">95/100 Topics Completed – 95%</span>
+          </div>
+          <div class="rounded-full bg-[#3b4354] h-2">
+            <div class="h-2 rounded-full bg-primary" style="width: 95%;"></div>
+          </div>
+          <a href="#html-details" class="text-primary hover:underline text-xs sm:text-sm" onclick="showTopics('html-details')">View Details</a>
+        </div>
+        <div class="glassmorphism p-3 rounded-lg flex flex-col gap-2">
+          <div class="flex flex-col xs:flex-row xs:items-center xs:justify-between">
+            <span class="text-base sm:text-lg font-bold">CSS</span>
+            <span class="text-sm sm:text-base text-text-light">70/100 Topics Completed – 70%</span>
+          </div>
+          <div class="rounded-full bg-[#3b4354] h-2">
+            <div class="h-2 rounded-full bg-primary" style="width: 70%;"></div>
+          </div>
+          <a href="#css-details" class="text-primary hover:underline text-xs sm:text-sm" onclick="showTopics('css-details')">View Details</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Course Topics: Python Example (Side Drawer) -->
+<div id="python-details" class="fixed inset-y-0 right-0 z-50 w-full max-w-md transform dark:bg-panel-dark bg-panel-dark text-text-light shadow-2xl glassmorphism slide-in" style="display:none;">
+  <div class="flex h-full flex-col p-6">
+    <div class="flex items-center justify-between">
+      <h1 class="text-lg sm:text-xl font-bold">Course Topics: Python</h1>
+      <button class="text-text-light hover:text-white" onclick="closeTopics('python-details')"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="mt-8 flex flex-col gap-4">
+      <div class="flex flex-col gap-3">
+        <div class="flex justify-between">
+          <p class="text-xs sm:text-sm font-medium">Progress: 17% Complete</p>
+          <p class="text-xs sm:text-sm font-normal">17%</p>
+        </div>
+        <div class="rounded-full bg-[#3b4354]">
+          <div class="h-2 rounded-full bg-primary" style="width: 17%;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-6 flex-grow overflow-y-auto pr-2">
+      <div class="flex flex-col divide-y divide-border-dark">
+        <label class="flex items-center gap-x-4 py-3 sm:py-4">
+          <input checked class="h-6 w-6 rounded-md border-border-dark border-2 bg-transparent text-primary checked:bg-primary checked:border-primary focus:ring-0 focus:ring-offset-0" type="checkbox" />
+          <div>
+            <p class="font-medium">Basics</p>
+            <p class="text-xs sm:text-sm text-text-light/70">Introduction to Python and its syntax.</p>
+          </div>
+        </label>
+        <label class="flex items-center gap-x-4 py-3 sm:py-4">
+          <input class="h-6 w-6 rounded-md border-border-dark border-2 bg-transparent text-primary checked:bg-primary checked:border-primary focus:ring-0 focus:ring-offset-0" type="checkbox" />
+          <div>
+            <p class="font-medium">Variables and Data Types</p>
+            <p class="text-xs sm:text-sm text-text-light/70">Learn about numbers, strings, and booleans.</p>
+          </div>
+        </label>
+        <label class="flex items-center gap-x-4 py-3 sm:py-4">
+          <input class="h-6 w-6 rounded-md border-border-dark border-2 bg-transparent text-primary checked:bg-primary checked:border-primary focus:ring-0 focus:ring-offset-0" type="checkbox" />
+          <div>
+            <p class="font-medium">Control Flow (Loops and Conditionals)</p>
+            <p class="text-xs sm:text-sm text-text-light/70">Master if-statements and for/while loops.</p>
+          </div>
+        </label>
+        <label class="flex items-center gap-x-4 py-3 sm:py-4">
+          <input class="h-6 w-6 rounded-md border-border-dark border-2 bg-transparent text-primary checked:bg-primary checked:border-primary focus:ring-0 focus:ring-offset-0" type="checkbox" />
+          <div>
+            <p class="font-medium">Functions</p>
+            <p class="text-xs sm:text-sm text-text-light/70">Understand how to define and use functions.</p>
+          </div>
+        </label>
+        <label class="flex items-center gap-x-4 py-3 sm:py-4">
+          <input class="h-6 w-6 rounded-md border-border-dark border-2 bg-transparent text-primary checked:bg-primary checked:border-primary focus:ring-0 focus:ring-offset-0" type="checkbox" />
+          <div>
+            <p class="font-medium">Data Structures (Lists, Dictionaries)</p>
+            <p class="text-xs sm:text-sm text-text-light/70">Explore ways to store and organize data.</p>
+          </div>
+        </label>
+        <label class="flex items-center gap-x-4 py-3 sm:py-4">
+          <input class="h-6 w-6 rounded-md border-border-dark border-2 bg-transparent text-primary checked:bg-primary checked:border-primary focus:ring-0 focus:ring-offset-0" type="checkbox" />
+          <div>
+            <p class="font-medium">Mini Project: Simple Calculator</p>
+            <p class="text-xs sm:text-sm text-text-light/70">Apply your knowledge to build a basic calculator.</p>
+          </div>
+        </label>
+      </div>
+    </div>
+    <div class="mt-auto pt-6">
+      <button class="flex w-full cursor-pointer items-center justify-center rounded-xl h-12 px-5 bg-primary text-white text-base font-bold tracking-wide transition-all hover:bg-primary/90">
+        <span class="truncate">Continue Learning</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- About Section -->
+<section id="about" class="w-full py-8 sm:py-12 dark:bg-background-dark bg-background-light">
+  <div class="max-w-2xl mx-auto px-2 sm:px-4 glassmorphism p-5 sm:p-8 rounded-xl">
+    <h2 class="text-xl sm:text-2xl font-bold text-primary mb-3">About Our Hub</h2>
+    <p class="text-sm sm:text-base text-text-light mb-4">
+      Mani, a passionate programmer, created this hub to share his love for code. Driven by the belief that anyone can learn to code, he designed this platform to be an accessible and supportive space for aspiring developers. Here, you'll find curated courses, track your progress, and join a community dedicated to building the future, one line of code at a time.
+    </p>
+    <p class="text-base text-primary mb-3">Made with ❤️ by Mani</p>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="w-full py-4 mt-4 sm:mt-8 glassmorphism text-center text-base text-text-light">
+  <div class="flex flex-wrap justify-center gap-4 sm:gap-6 mb-2 text-primary">
+    <span class="material-symbols-outlined">alternate_email</span>
+    <span class="material-symbols-outlined">code</span>
+    <span class="material-symbols-outlined">group</span>
+    <span class="material-symbols-outlined">photo_camera</span>
+    <span class="material-symbols-outlined">social_leaderboard</span>
+  </div>
+  <div class="flex flex-wrap justify-center gap-2 sm:gap-3 text-xs sm:text-sm mb-2">
+    <a href="#terms" class="hover:underline">Terms of Service</a>
+    <a href="#privacy" class="hover:underline">Privacy Policy</a>
+    <a href="#contact" class="hover:underline">Contact Us</a>
+  </div>
+  <div class="text-xs sm:text-base">© 2023 Programming Learning Hub. All rights reserved.</div>
+</footer>
+
+<script>
+function toggleMenu() {
+  const menu = document.getElementById('mobileMenu');
+  const isVisible = menu.style.display === 'flex';
+  menu.style.display = isVisible ? 'none' : 'flex';
+  menu.style.transform = isVisible ? 'translateX(100%)' : 'translateX(0)';
+}
+
+function showTopics(id) {
+  document.getElementById(id).style.display = 'block';
+}
+function closeTopics(id) {
+  document.getElementById(id).style.display = 'none';
+}
+</script>
+</body>
+</html>
