@@ -1,305 +1,538 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TIME TECH - AI Tools</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Arivu - AI Chat Assistant</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Markdown to HTML converter -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
+    <!-- Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0a092d;
-            color: #e0e0e0;
+            background-color: #0d1117; /* Dark blue-black */
+            color: #c9d1d9;
         }
-        .ai-card {
-            background-color: #1a1a3a;
-            border: 1px solid #3a3a5a;
-            box-shadow: 0px 0px 25px rgba(255, 0, 255, 0.2), 0px 0px 25px rgba(0, 255, 255, 0.2);
+        /* Custom scrollbar for a cleaner look */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #010409; }
+        ::-webkit-scrollbar-thumb { background: #21262d; border-radius: 4px; border: 2px solid #010409; }
+        ::-webkit-scrollbar-thumb:hover { background: #30363d; }
+
+        .sidebar { transition: transform 0.3s ease-in-out; }
+        .sidebar-open { transform: translateX(0); }
+        .sidebar-closed { transform: translateX(-100%); }
+        
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            color: #8b949e;
+            font-weight: 500;
+            transition: background-color 0.2s, color 0.2s;
         }
-        .ai-textarea {
-            background-color: #0a092d;
-            border-color: #3a3a5a;
-            transition: border-color 0.3s, box-shadow 0.3s;
+        .nav-btn:hover {
+            background-color: #1c2128;
+            color: #c9d1d9;
         }
-        .ai-textarea:focus {
-            border-color: #ff00ff;
-            box-shadow: 0 0 10px #ff00ff;
-            outline: none;
+        .nav-btn.active {
+            background-color: #30363d;
+            color: #f0f6fc;
         }
-        .ai-button {
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid transparent;
+
+        /* Glassmorphism Input Bar */
+        .chat-input-wrapper {
+            background: linear-gradient(to top, #0d1117, transparent);
         }
-        .ai-button:before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 300%;
-            height: 300%;
-            background: radial-gradient(circle, rgba(255,0,255,0.4) 0%, rgba(0,255,255,0.4) 50%, transparent 70%);
-            transform: translate(-50%, -50%) scale(0);
-            transition: transform 0.5s ease;
-            z-index: 1;
+        .chat-input {
+            background-color: rgba(48, 54, 61, 0.5); /* Semi-transparent */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(139, 148, 158, 0.3);
+            transition: border-color 0.2s;
         }
-        .ai-button:hover:before {
-            transform: translate(-50%, -50%) scale(1);
+        .chat-input:focus-within { border-color: rgba(99, 179, 237, 0.5); }
+        
+        textarea::placeholder { color: #8b949e; }
+        
+        .utility-btn {
+            color: #8b949e;
+            transition: color 0.2s;
         }
-        .ai-button-primary {
-            background-color: #6a0dad;
-            color: white;
+        .utility-btn:hover {
+            color: #c9d1d9;
         }
-        .ai-button-primary:hover {
-            background-color: #8a2be2;
-        }
-        .ai-button-secondary {
-            background-color: #008080;
-            color: white;
-        }
-        .ai-button-secondary:hover {
-            background-color: #00ced1;
-        }
-        .loader {
-            border: 4px solid #3a3a5a;
-            border-top: 4px solid #ff00ff;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .toast {
-            visibility: hidden;
-            min-width: 250px;
-            background-color: #00ced1;
-            color: #fff;
-            text-align: center;
+
+        /* Styles for formatted markdown content */
+        .markdown-content pre {
+            background-color: #010409;
+            color: #d4d4d4;
+            padding: 0;
             border-radius: 8px;
-            padding: 16px;
-            position: fixed;
-            z-index: 100;
-            left: 50%;
-            transform: translateX(-50%);
-            bottom: 30px;
-            opacity: 0;
-            transition: opacity 0.5s, visibility 0.5s, bottom 0.5s;
+            position: relative;
+            border: 1px solid #30363d;
         }
-        .toast.show {
-            visibility: visible;
-            opacity: 1;
-            bottom: 50px;
+        .markdown-content pre code.hljs {
+            padding: 1rem;
+            border-radius: 8px;
         }
+        .markdown-content .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #161b22;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid #30363d;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            font-size: 0.875rem;
+            color: #8b949e;
+        }
+        .markdown-content .copy-btn {
+            background-color: transparent;
+            color: #8b949e;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s;
+        }
+        .markdown-content .copy-btn:hover { background-color: #30363d; }
+        .markdown-content code:not(pre code) {
+            background-color: #161b22;
+            color: #a5d6ff;
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-size: 85%;
+        }
+        .markdown-content ul, .markdown-content ol { padding-left: 2rem; }
+        .markdown-content li { margin-bottom: 0.5rem; }
+        .markdown-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        .markdown-content th, .markdown-content td {
+            border: 1px solid #30363d;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        .markdown-content th { background-color: #161b22; }
+        .markdown-content blockquote {
+            border-left: 4px solid #30363d;
+            padding-left: 1rem;
+            margin-left: 0;
+            color: #8b949e;
+        }
+        .markdown-content a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+        .markdown-content a:hover { text-decoration: underline; }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
+<body class="w-full h-screen overflow-hidden flex">
 
-    <div class="ai-card rounded-2xl p-6 sm:p-8 w-full max-w-3xl">
-        <!-- Header -->
-        <div class="text-center mb-6">
-            <h1 class="text-3xl sm:text-4xl font-bold">
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-cyan-400">TIME TECH</span> AI Tools
-            </h1>
-            <p class="text-gray-400 mt-2">The Future of AI Tools is here. 🚀</p>
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar sidebar-closed md:sidebar-open md:relative md:translate-x-0 absolute top-0 left-0 h-full w-64 bg-[#010409] flex-shrink-0 flex flex-col z-20 border-r border-[#30363d]">
+        <div class="p-2 border-b border-gray-700">
+            <button id="newChatBtn" class="w-full text-left nav-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                New Chat
+            </button>
         </div>
-
-        <!-- Input Text Area -->
-        <div class="mb-4">
-            <label for="inputText" class="block text-lg font-medium mb-2">Enter your text</label>
-            <textarea id="inputText" rows="8" class="ai-textarea w-full p-3 rounded-lg focus:ring-2 focus:ring-pink-500 transition duration-300" placeholder="Paste your text here..."></textarea>
+        <div id="chatListContainer" class="flex-1 p-2 space-y-1 overflow-y-auto">
+            <!-- Dynamic chat list goes here -->
         </div>
-
-        <!-- Action Buttons -->
-        <div class="flex flex-col sm:flex-row gap-4 mb-6">
-            <button id="summarizeBtn" class="ai-button ai-button-primary w-full py-3 rounded-lg font-semibold text-lg relative">Summarize</button>
-            <button id="paraphraseBtn" class="ai-button ai-button-secondary w-full py-3 rounded-lg font-semibold text-lg relative">Paraphrase</button>
+        <div class="p-4 border-t border-gray-700 text-xs text-gray-400">
+            <button class="w-full text-left nav-btn" onclick="showPage('about')">
+                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                 About
+            </button>
+            <p class="mt-4 text-center text-gray-500">Developed by T&T Mani</p>
         </div>
+    </aside>
 
-        <!-- Loader and Output -->
-        <div id="loader" class="hidden justify-center my-4">
-            <div class="loader"></div>
-        </div>
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col h-screen">
+        <header class="md:hidden flex items-center justify-between p-4 bg-[#0d1117] border-b border-gray-700">
+             <h2 class="text-lg font-semibold">Arivu AI</h2>
+             <button id="menu-toggle" class="text-gray-300">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </header>
 
-        <div id="outputContainer" class="hidden">
-            <div class="flex justify-between items-center mb-2">
-                <h2 class="text-lg font-medium">Result</h2>
-                <button id="copyBtn" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-1 px-3 rounded-lg text-sm">
-                    Copy
-                </button>
+        <!-- Chat Page -->
+        <main id="home" class="flex-1 flex flex-col overflow-hidden">
+            <div id="chatContainer" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-8">
+                <!-- Placeholder for empty chat -->
+                <div id="emptyChatPlaceholder" class="flex flex-col items-center justify-center h-full text-gray-400">
+                    <div class="w-16 h-16 rounded-full bg-blue-600/30 border border-blue-500/50 flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M8 12h8"></path><path d="M12 8v8"></path></svg>
+                    </div>
+                    <h2 class="text-2xl font-semibold text-gray-300">How can I help you today?</h2>
+                </div>
+                <!-- Messages go here -->
             </div>
-            <div id="outputText" class="ai-textarea w-full p-4 rounded-lg min-h-[150px] whitespace-pre-wrap"></div>
+            <div class="p-4 chat-input-wrapper">
+                <div class="max-w-3xl mx-auto">
+                    <div class="flex items-end chat-input rounded-xl p-2">
+                         <label for="image-upload" class="utility-btn p-2 cursor-pointer" title="Upload Image">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                        </label>
+                        <input type="file" id="image-upload" class="hidden" accept="image/*">
+                         <label for="file-upload" class="utility-btn p-2 cursor-pointer" title="Upload File">
+                           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                        </label>
+                        <input type="file" id="file-upload" class="hidden">
+                        <textarea id="userQuestion" rows="1" placeholder="Ask Arivu anything..." class="flex-1 bg-transparent text-white focus:outline-none resize-none px-2 max-h-48"></textarea>
+                        <button id="askBtn" class="bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-lg ml-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- About Page -->
+        <div id="about" class="hidden flex-1 p-4 md:p-6 overflow-y-auto">
+             <div class="max-w-3xl mx-auto bg-[#161b22] p-8 rounded-lg border border-[#30363d]">
+                <h2 class="text-2xl font-bold mb-4 text-white">About Arivu AI</h2>
+                <p class="text-gray-300 mb-4">
+                    This is a modern AI chat assistant powered by Google's Gemini model. It's designed to be a helpful, user-friendly, and responsive tool for answering questions and completing tasks.
+                </p>
+                <p class="text-gray-300">
+                    Built with ❤️ by <b class="text-white">T&T Mani</b>, a developer passionate about the intersection of AI and web technology.
+                </p>
+                 <button class="nav-btn mt-6" onclick="showPage('home')">Back to Chat</button>
+            </div>
         </div>
     </div>
     
-    <!-- Toast Notification -->
-    <div id="toast" class="toast">Copied to clipboard!</div>
+    <div id="overlay" class="md:hidden hidden fixed inset-0 bg-black bg-opacity-50 z-10"></div>
 
-    <script>
-        const apiKey = "AIzaSyDicsJgqwB9cbCYEU6cd3fj6Yd6ej50Myk";
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, addDoc, collection, onSnapshot, query, serverTimestamp, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- Configs & State ---
+        let db, auth, userId, firebaseReady = false;
+        let currentConversationId = null;
+        let unsubscribeMessages;
+        let unsubscribeConversations;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'arivu-blue-theme';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        
+        const apiKey = "";
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+        let chatHistory = [];
+        const markdownConverter = new showdown.Converter({ tables: true, strikethrough: true, simplifiedAutoLink: true });
 
-        const inputText = document.getElementById('inputText');
-        const summarizeBtn = document.getElementById('summarizeBtn');
-        const paraphraseBtn = document.getElementById('paraphraseBtn');
-        const loader = document.getElementById('loader');
-        const outputContainer = document.getElementById('outputContainer');
-        const outputText = document.getElementById('outputText');
-        const copyBtn = document.getElementById('copyBtn');
-        const toast = document.getElementById('toast');
-
+        // --- DOM Elements ---
+        const askBtn = document.getElementById("askBtn");
+        const userQuestion = document.getElementById("userQuestion");
+        const chatContainer = document.getElementById("chatContainer");
+        const sidebar = document.getElementById('sidebar');
+        const menuToggle = document.getElementById('menu-toggle');
+        const overlay = document.getElementById('overlay');
+        const emptyChatPlaceholder = document.getElementById('emptyChatPlaceholder');
+        const chatListContainer = document.getElementById('chatListContainer');
+        const newChatBtn = document.getElementById('newChatBtn');
+        
         // --- Event Listeners ---
-        summarizeBtn.addEventListener('click', () => handleApiCall('summarize'));
-        paraphraseBtn.addEventListener('click', () => handleApiCall('paraphrase'));
-        copyBtn.addEventListener('click', copyToClipboard);
-        
+        askBtn.addEventListener("click", handleAsk);
+        newChatBtn.addEventListener('click', startNewChat);
+
+        userQuestion.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleAsk();
+            }
+        });
+        userQuestion.addEventListener('input', () => { // Auto-resize textarea
+            userQuestion.style.height = 'auto';
+            const scrollHeight = userQuestion.scrollHeight;
+            userQuestion.style.height = scrollHeight + 'px';
+        });
+        menuToggle.addEventListener('click', toggleSidebar);
+        overlay.addEventListener('click', toggleSidebar);
+
         // --- Core Functions ---
+
+        window.showPage = (page) => {
+            ['home', 'about'].forEach(p => {
+                document.getElementById(p).classList.toggle('hidden', p !== page);
+            });
+             if (window.innerWidth < 768) { 
+                toggleSidebar();
+            }
+        }
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('sidebar-closed');
+            sidebar.classList.toggle('sidebar-open');
+            overlay.classList.toggle('hidden');
+        }
+
+        function startNewChat() {
+            currentConversationId = null;
+            chatHistory = [];
+            chatContainer.innerHTML = ''; // Clear chat
+            emptyChatPlaceholder.classList.remove('hidden');
+            document.querySelectorAll('#chatListContainer .nav-btn').forEach(btn => btn.classList.remove('active'));
+             if (window.innerWidth < 768) { 
+                toggleSidebar();
+            }
+        }
+
+        async function handleAsk() {
+            const question = userQuestion.value.trim();
+            if (!question) return;
+
+            appendMessage({ text: question, sender: 'user' });
+            const tempUserQuestion = userQuestion.value;
+            userQuestion.value = '';
+            userQuestion.style.height = 'auto';
+            showTypingIndicator();
+
+            chatHistory.push({ role: "user", parts: [{ text: question }] });
+
+            // If this is the first message of a new chat, create the conversation
+            if (!currentConversationId) {
+                const title = tempUserQuestion.substring(0, 30) + (tempUserQuestion.length > 30 ? '...' : '');
+                currentConversationId = await createNewConversation(title);
+            }
+            
+            const botResponseText = await getBotResponse();
+            await saveMessageToConversation(question, botResponseText);
+        }
+
+        function appendMessage({ text, sender }) {
+            emptyChatPlaceholder.classList.add('hidden');
+            const messageDiv = document.createElement('div');
+            const content = sender === 'bot' ? markdownConverter.makeHtml(text) : text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+            messageDiv.innerHTML = `
+                <div class="flex items-start gap-4 max-w-3xl mx-auto">
+                    ${sender === 'bot' ? 
+                        `<div class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white bg-blue-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"></path><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M12 12h4"></path><path d="M12 16h4"></path><path d="M8 12h.01"></path><path d="M8 16h.01"></path></svg>
+                        </div>` : ''
+                    }
+                    <div class="flex-1 pt-1 ${sender === 'bot' ? 'markdown-content' : ''} ${sender === 'user' ? 'ml-12' : ''}">${content}</div>
+                </div>
+            `;
+            chatContainer.appendChild(messageDiv);
+            
+            if (sender === 'bot') {
+                processCodeBlocks(messageDiv);
+            }
+            scrollToBottom();
+        }
+
+        function showTypingIndicator() {
+            const typingIndicator = document.createElement('div');
+            typingIndicator.id = 'typing-indicator';
+            typingIndicator.innerHTML = `
+                <div class="flex items-start gap-4 max-w-3xl mx-auto">
+                    <div class="w-8 h-8 rounded-full bg-blue-600 flex-shrink-0 flex items-center justify-center text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"></path><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M12 12h4"></path><path d="M12 16h4"></path><path d="M8 12h.01"></path><path d="M8 16h.01"></path></svg>
+                    </div>
+                    <div class="flex-1 pt-3">
+                        <span class="animate-pulse">Arivu is thinking...</span>
+                    </div>
+                </div>
+            `;
+            chatContainer.appendChild(typingIndicator);
+            scrollToBottom();
+            askBtn.disabled = true;
+        }
+
+        function removeTypingIndicator() {
+            document.getElementById('typing-indicator')?.remove();
+            askBtn.disabled = false;
+        }
         
-        /**
-         * Handles the API call to the Gemini model.
-         * @param {string} mode - The mode of operation ('summarize' or 'paraphrase').
-         */
-        async function handleApiCall(mode) {
-            const text = inputText.value.trim();
-            if (!text) {
-                alert("Please enter some text.");
+        function processCodeBlocks(container) {
+            const codeBlocks = container.querySelectorAll('pre code');
+            codeBlocks.forEach(block => {
+                const language = [...block.classList].find(cls => cls.startsWith('language-'))?.replace('language-', '') || 'plaintext';
+                const preElement = block.parentElement;
+                if(preElement.parentElement.classList.contains('code-wrapper')) return; // Already processed
+                
+                const wrapper = document.createElement('div');
+                wrapper.className = 'code-wrapper';
+                
+                const header = document.createElement('div');
+                header.className = 'code-header';
+                header.innerHTML = `<span>${language}</span><button class="copy-btn">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    Copy
+                </button>`;
+                
+                preElement.parentNode.insertBefore(wrapper, preElement);
+                wrapper.appendChild(header);
+                wrapper.appendChild(preElement);
+                
+                header.querySelector('.copy-btn').addEventListener('click', () => {
+                    navigator.clipboard.writeText(block.innerText);
+                    const btn = header.querySelector('.copy-btn');
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = 'Copied!';
+                    setTimeout(() => { btn.innerHTML = originalText; }, 2000);
+                });
+
+                hljs.highlightElement(block);
+            });
+        }
+
+        function scrollToBottom() {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // --- API & Database ---
+        async function getBotResponse() {
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: chatHistory }),
+                });
+                if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                const result = await response.json();
+                const botMessage = result.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I encountered an issue. Please try again.";
+                chatHistory.push({ role: "model", parts: [{ text: botMessage }] });
+                
+                removeTypingIndicator();
+                appendMessage({text: botMessage, sender: 'bot'});
+                return botMessage;
+            } catch (error) {
+                console.error('Error fetching bot response:', error);
+                removeTypingIndicator();
+                const errorMessage = "Sorry, I am unable to process your request at the moment. Please try again later.";
+                appendMessage({text: errorMessage, sender: 'bot'});
+                return errorMessage;
+            }
+        }
+        
+        async function createNewConversation(title) {
+            if (!firebaseReady) return null;
+            try {
+                const conversationsCollection = collection(db, 'artifacts', appId, 'users', userId, 'conversations');
+                const newConvRef = doc(conversationsCollection);
+                await setDoc(newConvRef, {
+                    title: title,
+                    createdAt: serverTimestamp()
+                });
+                loadConversation(newConvRef.id);
+                return newConvRef.id;
+            } catch (error) {
+                console.error("Error creating new conversation:", error);
+                return null;
+            }
+        }
+
+        async function saveMessageToConversation(question, answer) {
+            if (!firebaseReady || !currentConversationId) return;
+            try {
+                const messagesCollection = collection(db, 'artifacts', appId, 'users', userId, 'conversations', currentConversationId, 'messages');
+                await addDoc(messagesCollection, {
+                    question, answer, timestamp: serverTimestamp()
+                });
+            } catch (error) {
+                console.error("Error saving message:", error);
+            }
+        }
+        
+        function loadConversationList() {
+             if (unsubscribeConversations) unsubscribeConversations(); 
+             
+             const conversationsCollection = collection(db, 'artifacts', appId, 'users', userId, 'conversations');
+             const q = query(conversationsCollection);
+
+             unsubscribeConversations = onSnapshot(q, (snapshot) => {
+                let convos = [];
+                snapshot.forEach(doc => convos.push({id: doc.id, ...doc.data()}));
+                convos.sort((a,b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
+                
+                chatListContainer.innerHTML = convos.map(c => `
+                    <button class="w-full text-left nav-btn truncate ${c.id === currentConversationId ? 'active' : ''}" onclick="window.loadConversation('${c.id}')">
+                        ${c.title}
+                    </button>
+                `).join('');
+             }, (error) => console.error("Error loading conversations: ", error));
+        }
+
+        window.loadConversation = (convId) => {
+            if (convId === currentConversationId) return;
+            if (unsubscribeMessages) unsubscribeMessages();
+            
+            currentConversationId = convId;
+            chatHistory = [];
+            chatContainer.innerHTML = '';
+            emptyChatPlaceholder.classList.add('hidden');
+            
+            document.querySelectorAll('#chatListContainer .nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`button[onclick="window.loadConversation('${convId}')"]`)?.classList.add('active');
+            
+            const messagesCollection = collection(db, 'artifacts', appId, 'users', userId, 'conversations', convId, 'messages');
+            const q = query(messagesCollection);
+            
+            unsubscribeMessages = onSnapshot(q, snapshot => {
+                const messages = [];
+                snapshot.forEach(doc => messages.push(doc.data()));
+                messages.sort((a,b) => (a.timestamp?.seconds ?? 0) - (b.timestamp?.seconds ?? 0));
+                
+                chatContainer.innerHTML = ''; // Clear before loading
+                messages.forEach(msg => {
+                    appendMessage({ text: msg.question, sender: 'user' });
+                    appendMessage({ text: msg.answer, sender: 'bot' });
+                    chatHistory.push({ role: "user", parts: [{ text: msg.question }] });
+                    chatHistory.push({ role: "model", parts: [{ text: msg.answer }] });
+                });
+            });
+            if (window.innerWidth < 768) toggleSidebar();
+        };
+
+        // --- Initialization ---
+        async function initializeAppAndAuth() {
+            if (!firebaseConfig) {
+                console.error("Firebase config is missing.");
                 return;
             }
-
-            let prompt;
-            if (mode === 'summarize') {
-                prompt = `Summarize the following text concisely:\n\n"${text}"`;
-            } else {
-                prompt = `Paraphrase the following text, maintaining its original meaning but using different wording:\n\n"${text}"`;
-            }
-
-            toggleLoading(true);
-
             try {
-                const result = await callGenerativeApiWithRetry(prompt);
-                outputText.textContent = result;
-                outputContainer.classList.remove('hidden');
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                onAuthStateChanged(auth, user => {
+                    if (user) {
+                        userId = user.uid;
+                        firebaseReady = true;
+                        loadConversationList();
+                    }
+                });
+                await signInAnonymously(auth);
             } catch (error) {
-                console.error("Error:", error);
-                outputText.textContent = "An error occurred. Please check the console for details.";
-                outputContainer.classList.remove('hidden');
-            } finally {
-                toggleLoading(false);
+                console.error("Initialization Error:", error);
             }
         }
         
-        /**
-         * Calls the generative AI API with exponential backoff for retries.
-         * @param {string} prompt - The prompt to send to the API.
-         * @returns {Promise<string>} The generated text from the API.
-         */
-        async function callGenerativeApiWithRetry(prompt, maxRetries = 3) {
-            let delay = 1000; // Start with 1 second
-            for (let i = 0; i < maxRetries; i++) {
-                try {
-                    const payload = {
-                        contents: [{ parts: [{ text: prompt }] }],
-                    };
-
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    
-                    const result = await response.json();
-                    
-                    if (result.candidates && result.candidates[0].content?.parts?.[0]?.text) {
-                        return result.candidates[0].content.parts[0].text;
-                    } else {
-                         throw new Error("Invalid response structure from API.");
-                    }
-
-                } catch (error) {
-                    console.error(`Attempt ${i + 1} failed:`, error);
-                    if (i < maxRetries - 1) {
-                        await new Promise(res => setTimeout(res, delay));
-                        delay *= 2; // Double the delay for the next retry
-                    } else {
-                        throw error; // Rethrow the error after the last attempt
-                    }
-                }
-            }
-        }
-        
-        /**
-         * Copies the generated text to the clipboard.
-         */
-        function copyToClipboard() {
-            const textToCopy = outputText.textContent;
-            if (!textToCopy) return;
-
-            const textArea = document.createElement('textarea');
-            textArea.value = textToCopy;
-            document.body.appendChild(textArea);
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                showToast("Copied to clipboard!");
-            } catch (err) {
-                console.error('Failed to copy text: ', err);
-                showToast("Failed to copy!", true);
-            }
-            document.body.removeChild(textArea);
-        }
-
-        // --- UI Helper Functions ---
-
-        /**
-         * Toggles the loading state of the UI.
-         * @param {boolean} isLoading - Whether to show or hide the loader.
-         */
-        function toggleLoading(isLoading) {
-            if (isLoading) {
-                loader.classList.remove('hidden');
-                loader.classList.add('flex');
-                outputContainer.classList.add('hidden');
-                summarizeBtn.disabled = true;
-                paraphraseBtn.disabled = true;
-                summarizeBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                paraphraseBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            } else {
-                loader.classList.add('hidden');
-                loader.classList.remove('flex');
-                summarizeBtn.disabled = false;
-                paraphraseBtn.disabled = false;
-                summarizeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                paraphraseBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            }
-        }
-        
-        /**
-         * Shows a toast notification.
-         * @param {string} message - The message to display.
-         * @param {boolean} isError - If true, styles the toast as an error.
-         */
-        function showToast(message, isError = false) {
-            toast.textContent = message;
-            toast.className = "toast show";
-            if (isError) {
-                toast.style.backgroundColor = "#e53e3e"; // Red for error
-            } else {
-                toast.style.backgroundColor = "#00ced1"; // Default color
-            }
-            setTimeout(() => { 
-                toast.className = toast.className.replace("show", ""); 
-            }, 3000);
-        }
-
+        initializeAppAndAuth();
     </script>
 </body>
 </html>
+
 
