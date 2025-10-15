@@ -14,6 +14,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* Base styles for the application */
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
         body {
             font-family: 'Inter', sans-serif;
             background-color: #0d1117; /* Dark blue-black */
@@ -264,19 +268,32 @@
         import { getFirestore, addDoc, collection, onSnapshot, query, serverTimestamp, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Global State and Configuration ---
+        
+        // --- START: PASTE YOUR FIREBASE CONFIGURATION HERE ---
+        // 1. Go to your Firebase project console.
+        // 2. In Project Settings, find your web app.
+        // 3. Under "SDK setup and configuration", copy the config object.
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        // --- END: PASTE YOUR FIREBASE CONFIGURATION HERE ---
+
+
         let db, auth, userId, firebaseReady = false;
         let currentConversationId = null;
         let unsubscribeMessages;
         let unsubscribeConversations;
         let uploadedImageBase64 = null;
         let uploadedImageMimeType = null;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'arivu-final-prod';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : firebaseConfig.projectId;
         
-        // IMPORTANT: The API key is left empty here. The hosting environment will
-        // automatically provide it at runtime. Do not hardcode a key.
-        const apiKey = "";
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+        const apiKey = ""; // This will be provided by the runtime environment.
+        const apiUrl = `https://generativelace.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
         let chatHistory = [];
         const markdownConverter = new showdown.Converter({ tables: true, strikethrough: true, simplifiedAutoLink: true });
 
@@ -675,8 +692,10 @@
          * Initializes Firebase app and authentication services.
          */
         async function initializeAppAndAuth() {
-            if (!firebaseConfig) {
-                console.error("Firebase config is missing. Application cannot start.");
+            if (!firebaseConfig || firebaseConfig.apiKey === "YOUR_API_KEY") {
+                console.error("Firebase config is missing or incomplete. Please paste your project's configuration into the script.");
+                // You could display an error message to the user here
+                chatContainer.innerHTML = `<div class="text-center text-red-400 p-8">Application is not configured correctly. Please contact the site administrator.</div>`;
                 return;
             }
             try {
@@ -692,7 +711,7 @@
                     }
                 });
                 await signInAnonymously(auth);
-            } catch (error) {
+            } catch (error)
                 console.error("Firebase Initialization Error:", error);
             }
         }
