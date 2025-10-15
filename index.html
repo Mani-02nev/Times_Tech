@@ -13,21 +13,24 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Base styles for the application */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #0d1117; /* Dark blue-black */
             color: #c9d1d9;
         }
-        /* Custom scrollbar for a cleaner look */
+        /* Custom scrollbar for a cleaner look across the app */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #010409; }
         ::-webkit-scrollbar-thumb { background: #21262d; border-radius: 4px; border: 2px solid #010409; }
         ::-webkit-scrollbar-thumb:hover { background: #30363d; }
 
+        /* Sidebar styles and animations */
         .sidebar { transition: transform 0.3s ease-in-out; }
         .sidebar-open { transform: translateX(0); }
         .sidebar-closed { transform: translateX(-100%); }
         
+        /* Navigation button styles */
         .nav-btn {
             display: flex;
             align-items: center;
@@ -46,12 +49,12 @@
             color: #f0f6fc;
         }
 
-        /* Glassmorphism Input Bar */
+        /* Glassmorphism effect for the chat input bar */
         .chat-input-wrapper {
             background: linear-gradient(to top, #0d1117, transparent);
         }
         .chat-input {
-            background-color: rgba(48, 54, 61, 0.5); /* Semi-transparent */
+            background-color: rgba(48, 54, 61, 0.5); /* Semi-transparent background */
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(139, 148, 158, 0.3);
@@ -69,7 +72,37 @@
             color: #c9d1d9;
         }
 
-        /* Styles for formatted markdown content */
+        /* Styling for the uploaded image preview */
+        #image-preview-container {
+            position: relative;
+            margin-left: 0.5rem;
+        }
+        #image-preview {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            object-fit: cover;
+            border: 1px solid #30363d;
+        }
+        #remove-image-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #30363d;
+            color: white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            line-height: 1;
+            cursor: pointer;
+            border: 1px solid #0d1117;
+        }
+
+        /* Styles for AI-formatted markdown content */
         .markdown-content pre {
             background-color: #010409;
             color: #d4d4d4;
@@ -143,7 +176,7 @@
 </head>
 <body class="w-full h-screen overflow-hidden flex">
 
-    <!-- Sidebar -->
+    <!-- Sidebar for navigation and chat history -->
     <aside id="sidebar" class="sidebar sidebar-closed md:sidebar-open md:relative md:translate-x-0 absolute top-0 left-0 h-full w-64 bg-[#010409] flex-shrink-0 flex flex-col z-20 border-r border-[#30363d]">
         <div class="p-2 border-b border-gray-700">
             <button id="newChatBtn" class="w-full text-left nav-btn">
@@ -152,7 +185,7 @@
             </button>
         </div>
         <div id="chatListContainer" class="flex-1 p-2 space-y-1 overflow-y-auto">
-            <!-- Dynamic chat list goes here -->
+            <!-- Dynamic chat list populates here -->
         </div>
         <div class="p-4 border-t border-gray-700 text-xs text-gray-400">
             <button class="w-full text-left nav-btn" onclick="showPage('about')">
@@ -163,7 +196,7 @@
         </div>
     </aside>
 
-    <!-- Main Content -->
+    <!-- Main Content Area -->
     <div class="flex-1 flex flex-col h-screen">
         <header class="md:hidden flex items-center justify-between p-4 bg-[#0d1117] border-b border-gray-700">
              <h2 class="text-lg font-semibold">Arivu AI</h2>
@@ -175,27 +208,28 @@
         <!-- Chat Page -->
         <main id="home" class="flex-1 flex flex-col overflow-hidden">
             <div id="chatContainer" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-8">
-                <!-- Placeholder for empty chat -->
+                <!-- Placeholder for new chats -->
                 <div id="emptyChatPlaceholder" class="flex flex-col items-center justify-center h-full text-gray-400">
                     <div class="w-16 h-16 rounded-full bg-blue-600/30 border border-blue-500/50 flex items-center justify-center mb-4">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M8 12h8"></path><path d="M12 8v8"></path></svg>
                     </div>
                     <h2 class="text-2xl font-semibold text-gray-300">How can I help you today?</h2>
                 </div>
-                <!-- Messages go here -->
+                <!-- Messages are dynamically inserted here -->
             </div>
             <div class="p-4 chat-input-wrapper">
                 <div class="max-w-3xl mx-auto">
                     <div class="flex items-end chat-input rounded-xl p-2">
+                         <div id="image-preview-container" class="hidden"></div>
                          <label for="image-upload" class="utility-btn p-2 cursor-pointer" title="Upload Image">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
                         </label>
                         <input type="file" id="image-upload" class="hidden" accept="image/*">
-                         <label for="file-upload" class="utility-btn p-2 cursor-pointer" title="Upload File">
+                         <label for="file-upload" class="utility-btn p-2 cursor-pointer" title="Upload File (coming soon)">
                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
                         </label>
                         <input type="file" id="file-upload" class="hidden">
-                        <textarea id="userQuestion" rows="1" placeholder="Ask Arivu anything..." class="flex-1 bg-transparent text-white focus:outline-none resize-none px-2 max-h-48"></textarea>
+                        <textarea id="userQuestion" rows="1" placeholder="Ask Arivu anything, or upload an image..." class="flex-1 bg-transparent text-white focus:outline-none resize-none px-2 max-h-48"></textarea>
                         <button id="askBtn" class="bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-lg ml-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                         </button>
@@ -209,7 +243,7 @@
              <div class="max-w-3xl mx-auto bg-[#161b22] p-8 rounded-lg border border-[#30363d]">
                 <h2 class="text-2xl font-bold mb-4 text-white">About Arivu AI</h2>
                 <p class="text-gray-300 mb-4">
-                    This is a modern AI chat assistant powered by Google's Gemini model. It's designed to be a helpful, user-friendly, and responsive tool for answering questions and completing tasks.
+                    This is a modern AI chat assistant powered by Google's Gemini model. It's designed to be a helpful, user-friendly, and responsive tool for answering questions and completing tasks, with support for text and image-based conversations.
                 </p>
                 <p class="text-gray-300">
                     Built with ❤️ by <b class="text-white">T&T Mani</b>, a developer passionate about the intersection of AI and web technology.
@@ -219,28 +253,34 @@
         </div>
     </div>
     
+    <!-- Overlay for mobile sidebar -->
     <div id="overlay" class="md:hidden hidden fixed inset-0 bg-black bg-opacity-50 z-10"></div>
 
 
     <script type="module">
+        // Firebase and external library imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, addDoc, collection, onSnapshot, query, serverTimestamp, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- Configs & State ---
+        // --- Global State and Configuration ---
         let db, auth, userId, firebaseReady = false;
         let currentConversationId = null;
         let unsubscribeMessages;
         let unsubscribeConversations;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'arivu-blue-theme';
+        let uploadedImageBase64 = null;
+        let uploadedImageMimeType = null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'arivu-final-prod';
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
         
+        // IMPORTANT: The API key is left empty here. The hosting environment will
+        // automatically provide it at runtime. Do not hardcode a key.
         const apiKey = "";
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
         let chatHistory = [];
         const markdownConverter = new showdown.Converter({ tables: true, strikethrough: true, simplifiedAutoLink: true });
 
-        // --- DOM Elements ---
+        // --- DOM Element References ---
         const askBtn = document.getElementById("askBtn");
         const userQuestion = document.getElementById("userQuestion");
         const chatContainer = document.getElementById("chatContainer");
@@ -250,10 +290,13 @@
         const emptyChatPlaceholder = document.getElementById('emptyChatPlaceholder');
         const chatListContainer = document.getElementById('chatListContainer');
         const newChatBtn = document.getElementById('newChatBtn');
+        const imageUploadInput = document.getElementById('image-upload');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
         
-        // --- Event Listeners ---
+        // --- Event Listeners Setup ---
         askBtn.addEventListener("click", handleAsk);
         newChatBtn.addEventListener('click', startNewChat);
+        imageUploadInput.addEventListener('change', handleImageUpload);
 
         userQuestion.addEventListener("keydown", (e) => {
             if (e.key === "Enter" && !e.shiftKey) {
@@ -263,14 +306,17 @@
         });
         userQuestion.addEventListener('input', () => { // Auto-resize textarea
             userQuestion.style.height = 'auto';
-            const scrollHeight = userQuestion.scrollHeight;
-            userQuestion.style.height = scrollHeight + 'px';
+            userQuestion.style.height = (userQuestion.scrollHeight) + 'px';
         });
         menuToggle.addEventListener('click', toggleSidebar);
         overlay.addEventListener('click', toggleSidebar);
 
-        // --- Core Functions ---
+        // --- Core Application Functions ---
 
+        /**
+         * Toggles between showing the main chat interface and the 'About' page.
+         * @param {string} page - The page to display ('home' or 'about').
+         */
         window.showPage = (page) => {
             ['home', 'about'].forEach(p => {
                 document.getElementById(p).classList.toggle('hidden', p !== page);
@@ -280,38 +326,65 @@
             }
         }
 
+        /**
+         * Toggles the sidebar visibility on mobile devices.
+         */
         function toggleSidebar() {
             sidebar.classList.toggle('sidebar-closed');
             sidebar.classList.toggle('sidebar-open');
             overlay.classList.toggle('hidden');
         }
 
+        /**
+         * Resets the chat interface to start a new conversation.
+         */
         function startNewChat() {
             currentConversationId = null;
             chatHistory = [];
-            chatContainer.innerHTML = ''; // Clear chat
+            chatContainer.innerHTML = ''; // Clear chat view
             emptyChatPlaceholder.classList.remove('hidden');
+            clearImagePreview();
             document.querySelectorAll('#chatListContainer .nav-btn').forEach(btn => btn.classList.remove('active'));
              if (window.innerWidth < 768) { 
                 toggleSidebar();
             }
         }
 
+        /**
+         * Main handler for sending a message. It processes user input,
+         * handles image data, calls the AI, and saves the conversation.
+         */
         async function handleAsk() {
             const question = userQuestion.value.trim();
-            if (!question) return;
+            if (!question && !uploadedImageBase64) return; // Need at least text or an image
 
-            appendMessage({ text: question, sender: 'user' });
+            // Append user's message with text and image preview
+            appendMessage({ text: question, sender: 'user', image: uploadedImageBase64 ? imagePreviewContainer.querySelector('img').src : null });
+            
             const tempUserQuestion = userQuestion.value;
             userQuestion.value = '';
             userQuestion.style.height = 'auto';
             showTypingIndicator();
 
-            chatHistory.push({ role: "user", parts: [{ text: question }] });
+            // Prepare API payload
+            const apiParts = [];
+            if (question) {
+                apiParts.push({ text: question });
+            }
+            if (uploadedImageBase64) {
+                 apiParts.push({
+                    inlineData: {
+                        mimeType: uploadedImageMimeType,
+                        data: uploadedImageBase64
+                    }
+                });
+            }
+            chatHistory.push({ role: "user", parts: apiParts });
+            clearImagePreview(); // Clear preview after sending
 
-            // If this is the first message of a new chat, create the conversation
+            // If this is a new chat, create a conversation entry in Firestore
             if (!currentConversationId) {
-                const title = tempUserQuestion.substring(0, 30) + (tempUserQuestion.length > 30 ? '...' : '');
+                const title = tempUserQuestion.substring(0, 30) || "Image Conversation";
                 currentConversationId = await createNewConversation(title);
             }
             
@@ -319,9 +392,15 @@
             await saveMessageToConversation(question, botResponseText);
         }
 
-        function appendMessage({ text, sender }) {
+        /**
+         * Appends a message to the chat container.
+         * @param {object} {text, sender, image} - Message details.
+         */
+        function appendMessage({ text, sender, image = null }) {
             emptyChatPlaceholder.classList.add('hidden');
             const messageDiv = document.createElement('div');
+            
+            const imageHtml = image ? `<img src="${image}" class="max-w-xs rounded-md my-2 border border-[#30363d]">` : '';
             const content = sender === 'bot' ? markdownConverter.makeHtml(text) : text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
             messageDiv.innerHTML = `
@@ -331,7 +410,10 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"></path><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M12 12h4"></path><path d="M12 16h4"></path><path d="M8 12h.01"></path><path d="M8 16h.01"></path></svg>
                         </div>` : ''
                     }
-                    <div class="flex-1 pt-1 ${sender === 'bot' ? 'markdown-content' : ''} ${sender === 'user' ? 'ml-12' : ''}">${content}</div>
+                    <div class="flex-1 pt-1 ${sender === 'bot' ? 'markdown-content' : ''} ${sender === 'user' ? 'ml-12' : ''}">
+                        ${imageHtml}
+                        ${content}
+                    </div>
                 </div>
             `;
             chatContainer.appendChild(messageDiv);
@@ -342,13 +424,16 @@
             scrollToBottom();
         }
 
+        /**
+         * Displays the AI "thinking..." indicator.
+         */
         function showTypingIndicator() {
             const typingIndicator = document.createElement('div');
             typingIndicator.id = 'typing-indicator';
             typingIndicator.innerHTML = `
                 <div class="flex items-start gap-4 max-w-3xl mx-auto">
                     <div class="w-8 h-8 rounded-full bg-blue-600 flex-shrink-0 flex items-center justify-center text-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"></path><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M12 12h4"></path><path d="M12 16h4"></path><path d="M8 12h.01"></path><path d="M8 16h.01"></path></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"></path><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M12 12h4"></path><path d="M12 16h4"></path><path d="M8 12h.01"></path><path d="M8 16h.01"></path></svg>
                     </div>
                     <div class="flex-1 pt-3">
                         <span class="animate-pulse">Arivu is thinking...</span>
@@ -360,17 +445,24 @@
             askBtn.disabled = true;
         }
 
+        /**
+         * Removes the AI "thinking..." indicator.
+         */
         function removeTypingIndicator() {
             document.getElementById('typing-indicator')?.remove();
             askBtn.disabled = false;
         }
         
+        /**
+         * Processes code blocks within a message to add syntax highlighting and a copy button.
+         * @param {HTMLElement} container - The message element containing the code blocks.
+         */
         function processCodeBlocks(container) {
             const codeBlocks = container.querySelectorAll('pre code');
             codeBlocks.forEach(block => {
                 const language = [...block.classList].find(cls => cls.startsWith('language-'))?.replace('language-', '') || 'plaintext';
                 const preElement = block.parentElement;
-                if(preElement.parentElement.classList.contains('code-wrapper')) return; // Already processed
+                if(preElement.parentElement.classList.contains('code-wrapper')) return;
                 
                 const wrapper = document.createElement('div');
                 wrapper.className = 'code-wrapper';
@@ -402,13 +494,64 @@
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
-        // --- API & Database ---
+        // --- Image Handling ---
+
+        /**
+         * Handles the file selection event for image uploads.
+         * @param {Event} event - The file input change event.
+         */
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const base64String = e.target.result.split(',')[1];
+                uploadedImageBase64 = base64String;
+                uploadedImageMimeType = file.type;
+                showImagePreview(e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        /**
+         * Displays a thumbnail of the uploaded image in the input bar.
+         * @param {string} dataUrl - The data URL of the image to preview.
+         */
+        function showImagePreview(dataUrl) {
+            imagePreviewContainer.innerHTML = `
+                <img id="image-preview" src="${dataUrl}" alt="Image preview">
+                <span id="remove-image-btn">&times;</span>
+            `;
+            imagePreviewContainer.classList.remove('hidden');
+            document.getElementById('remove-image-btn').addEventListener('click', clearImagePreview);
+        }
+
+        /**
+         * Clears the uploaded image data and removes the preview.
+         */
+        function clearImagePreview() {
+            uploadedImageBase64 = null;
+            uploadedImageMimeType = null;
+            imageUploadInput.value = ''; // Reset file input
+            imagePreviewContainer.innerHTML = '';
+            imagePreviewContainer.classList.add('hidden');
+        }
+
+
+        // --- API & Firebase Database Functions ---
+        
+        /**
+         * Fetches a response from the Gemini API.
+         * @returns {Promise<string>} The text response from the AI.
+         */
         async function getBotResponse() {
             try {
+                const payload = { contents: chatHistory };
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: chatHistory }),
+                    body: JSON.stringify(payload),
                 });
                 if (!response.ok) throw new Error(`API Error: ${response.status}`);
                 const result = await response.json();
@@ -427,6 +570,11 @@
             }
         }
         
+        /**
+         * Creates a new conversation document in Firestore.
+         * @param {string} title - The title for the new conversation.
+         * @returns {Promise<string|null>} The ID of the newly created conversation.
+         */
         async function createNewConversation(title) {
             if (!firebaseReady) return null;
             try {
@@ -444,6 +592,11 @@
             }
         }
 
+        /**
+         * Saves a user question and AI answer to the current conversation in Firestore.
+         * @param {string} question - The user's question.
+         * @param {string} answer - The AI's answer.
+         */
         async function saveMessageToConversation(question, answer) {
             if (!firebaseReady || !currentConversationId) return;
             try {
@@ -456,6 +609,9 @@
             }
         }
         
+        /**
+         * Loads and displays the list of past conversations in the sidebar.
+         */
         function loadConversationList() {
              if (unsubscribeConversations) unsubscribeConversations(); 
              
@@ -468,13 +624,17 @@
                 convos.sort((a,b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
                 
                 chatListContainer.innerHTML = convos.map(c => `
-                    <button class="w-full text-left nav-btn truncate ${c.id === currentConversationId ? 'active' : ''}" onclick="window.loadConversation('${c.id}')">
+                    <button class="w-full text-left nav-btn truncate ${c.id === currentConversationId ? 'active' : ''}" onclick="window.loadConversation('${c.id}')" title="${c.title}">
                         ${c.title}
                     </button>
                 `).join('');
              }, (error) => console.error("Error loading conversations: ", error));
         }
 
+        /**
+         * Loads a specific conversation's messages into the chat window.
+         * @param {string} convId - The ID of the conversation to load.
+         */
         window.loadConversation = (convId) => {
             if (convId === currentConversationId) return;
             if (unsubscribeMessages) unsubscribeMessages();
@@ -483,6 +643,7 @@
             chatHistory = [];
             chatContainer.innerHTML = '';
             emptyChatPlaceholder.classList.add('hidden');
+            clearImagePreview();
             
             document.querySelectorAll('#chatListContainer .nav-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`button[onclick="window.loadConversation('${convId}')"]`)?.classList.add('active');
@@ -497,8 +658,10 @@
                 
                 chatContainer.innerHTML = ''; // Clear before loading
                 messages.forEach(msg => {
+                    // Note: Image previews from past chats are not re-rendered for simplicity.
                     appendMessage({ text: msg.question, sender: 'user' });
                     appendMessage({ text: msg.answer, sender: 'bot' });
+                    // Rebuild history for API context
                     chatHistory.push({ role: "user", parts: [{ text: msg.question }] });
                     chatHistory.push({ role: "model", parts: [{ text: msg.answer }] });
                 });
@@ -506,10 +669,14 @@
             if (window.innerWidth < 768) toggleSidebar();
         };
 
-        // --- Initialization ---
+        // --- Application Initialization ---
+        
+        /**
+         * Initializes Firebase app and authentication services.
+         */
         async function initializeAppAndAuth() {
             if (!firebaseConfig) {
-                console.error("Firebase config is missing.");
+                console.error("Firebase config is missing. Application cannot start.");
                 return;
             }
             try {
@@ -526,10 +693,11 @@
                 });
                 await signInAnonymously(auth);
             } catch (error) {
-                console.error("Initialization Error:", error);
+                console.error("Firebase Initialization Error:", error);
             }
         }
         
+        // Start the application
         initializeAppAndAuth();
     </script>
 </body>
