@@ -3,723 +3,302 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Arivu - AI Chat Assistant</title>
+    <title>Arivu AI v4</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Markdown to HTML converter -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
-    <!-- Syntax Highlighting -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Base styles for the application */
-        html, body {
-            height: 100%;
-            overflow: hidden;
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #010409;
+            --bg-tertiary: #161b22;
+            --bg-glass: rgba(13, 17, 23, 0.65);
+            --bg-input: rgba(48, 54, 61, 0.5);
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --text-tertiary: #8b949e;
+            --border-primary: rgba(48, 54, 61, 0.5);
+            --border-secondary: rgba(139, 148, 158, 0.3);
+            --accent: #3f80ff;
+            --accent-hover: #58a6ff;
+            --accent-subtle: rgba(63, 128, 255, 0.2);
+            --danger-hover: rgba(255, 80, 80, 0.2);
+            --danger-text: #ff7b72;
         }
+
+        html.light-theme {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f0f2f5;
+            --bg-tertiary: #e4e6eb;
+            --bg-glass: rgba(255, 255, 255, 0.7);
+            --bg-input: rgba(240, 242, 245, 0.8);
+            --text-primary: #050505;
+            --text-secondary: #65676b;
+            --text-tertiary: #8A8D91;
+            --border-primary: #ced0d4;
+            --border-secondary: #ccd0d5;
+            --accent: #1b74e4;
+            --accent-hover: #1866c9;
+            --accent-subtle: rgba(27, 116, 228, 0.1);
+            --danger-hover: rgba(217, 48, 37, 0.1);
+            --danger-text: #d93025;
+        }
+
+        html, body { height: 100%; overflow: hidden; }
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0d1117; /* Dark blue-black */
-            color: #c9d1d9;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
         }
-        /* Custom scrollbar for a cleaner look across the app */
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #010409; }
-        ::-webkit-scrollbar-thumb { background: #21262d; border-radius: 4px; border: 2px solid #010409; }
-        ::-webkit-scrollbar-thumb:hover { background: #30363d; }
-
-        /* Sidebar styles and animations */
-        .sidebar { transition: transform 0.3s ease-in-out; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(139, 148, 158, 0.3); border-radius: 4px; }
+        
+        .sidebar {
+            background-color: var(--bg-glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-right: 1px solid var(--border-primary);
+            transition: transform 0.3s ease-in-out, background-color 0.3s, border-color 0.3s;
+            position: fixed; /* Changed for mobile overlay */
+            top: 0; left: 0; height: 100%; z-index: 40;
+        }
+        @media (min-width: 768px) {
+            .sidebar { position: relative; }
+        }
         .sidebar-open { transform: translateX(0); }
         .sidebar-closed { transform: translateX(-100%); }
-        
-        /* Navigation button styles */
+        @media (min-width: 768px) { .sidebar-closed { transform: translateX(0); } }
+
         .nav-btn {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            color: #8b949e;
-            font-weight: 500;
+            color: var(--text-secondary);
             transition: background-color 0.2s, color 0.2s;
         }
         .nav-btn:hover {
-            background-color: #1c2128;
-            color: #c9d1d9;
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
         }
         .nav-btn.active {
-            background-color: #30363d;
-            color: #f0f6fc;
+            background-color: var(--accent-subtle);
+            color: var(--text-primary);
+            font-weight: 600;
         }
-
-        /* Glassmorphism effect for the chat input bar */
-        .chat-input-wrapper {
-            background: linear-gradient(to top, #0d1117, transparent);
-        }
+        .nav-btn .delete-btn { color: var(--text-secondary); }
+        .nav-btn:hover .delete-btn { display: block; }
+        .nav-btn .delete-btn:hover { background-color: var(--danger-hover); color: var(--danger-text); }
         .chat-input {
-            background-color: rgba(48, 54, 61, 0.5); /* Semi-transparent background */
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(139, 148, 158, 0.3);
-            transition: border-color 0.2s;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-secondary);
+            transition: border-color 0.2s, background-color 0.3s;
         }
-        .chat-input:focus-within { border-color: rgba(99, 179, 237, 0.5); }
-        
-        textarea::placeholder { color: #8b949e; }
-        
-        .utility-btn {
-            color: #8b949e;
-            transition: color 0.2s;
-        }
-        .utility-btn:hover {
-            color: #c9d1d9;
-        }
+        .chat-input:focus-within { border-color: var(--accent); }
+        .markdown-content pre{background-color:var(--bg-secondary)}.markdown-content pre code.hljs{background:0 0}.markdown-content .code-header{background-color:var(--bg-tertiary);color:var(--text-tertiary);border-bottom:1px solid var(--border-primary)}.markdown-content code:not(pre code){background-color:var(--bg-tertiary);color:var(--accent-hover)}.markdown-content th{background-color:var(--bg-tertiary)}.markdown-content blockquote{border-left:4px solid var(--border-primary);color:var(--text-secondary)}.markdown-content a{color:var(--accent-hover)}
 
-        /* Styling for the uploaded image preview */
-        #image-preview-container {
-            position: relative;
-            margin-left: 0.5rem;
-        }
-        #image-preview {
-            width: 40px;
-            height: 40px;
-            border-radius: 4px;
-            object-fit: cover;
-            border: 1px solid #30363d;
-        }
-        #remove-image-btn {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background-color: #30363d;
-            color: white;
-            border-radius: 50%;
-            width: 16px;
-            height: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            line-height: 1;
-            cursor: pointer;
-            border: 1px solid #0d1117;
-        }
-
-        /* Styles for AI-formatted markdown content */
-        .markdown-content pre {
-            background-color: #010409;
-            color: #d4d4d4;
-            padding: 0;
-            border-radius: 8px;
-            position: relative;
-            border: 1px solid #30363d;
-        }
-        .markdown-content pre code.hljs {
-            padding: 1rem;
-            border-radius: 8px;
-        }
-        .markdown-content .code-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #161b22;
-            padding: 0.5rem 1rem;
-            border-bottom: 1px solid #30363d;
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
-            font-size: 0.875rem;
-            color: #8b949e;
-        }
-        .markdown-content .copy-btn {
-            background-color: transparent;
-            color: #8b949e;
-            border: none;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: background-color 0.2s;
-        }
-        .markdown-content .copy-btn:hover { background-color: #30363d; }
-        .markdown-content code:not(pre code) {
-            background-color: #161b22;
-            color: #a5d6ff;
-            padding: 0.2em 0.4em;
-            border-radius: 3px;
-            font-size: 85%;
-        }
-        .markdown-content ul, .markdown-content ol { padding-left: 2rem; }
-        .markdown-content li { margin-bottom: 0.5rem; }
-        .markdown-content table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1rem 0;
-        }
-        .markdown-content th, .markdown-content td {
-            border: 1px solid #30363d;
-            padding: 0.75rem;
-            text-align: left;
-        }
-        .markdown-content th { background-color: #161b22; }
-        .markdown-content blockquote {
-            border-left: 4px solid #30363d;
-            padding-left: 1rem;
-            margin-left: 0;
-            color: #8b949e;
-        }
-        .markdown-content a {
-            color: #58a6ff;
-            text-decoration: none;
-        }
-        .markdown-content a:hover { text-decoration: underline; }
+        /* Toggle Switch */
+        .switch{position:relative;display:inline-block;width:40px;height:24px}.switch input{opacity:0;width:0;height:0}.slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#ccc;transition:.4s;border-radius:34px}.slider:before{position:absolute;content:"";height:16px;width:16px;left:4px;bottom:4px;background-color:#fff;transition:.4s;border-radius:50%}input:checked+.slider{background-color:var(--accent)}input:checked+.slider:before{transform:translateX(16px)}
     </style>
 </head>
 <body class="w-full h-screen overflow-hidden flex">
-
-    <!-- Sidebar for navigation and chat history -->
-    <aside id="sidebar" class="sidebar sidebar-closed md:sidebar-open md:relative md:translate-x-0 absolute top-0 left-0 h-full w-64 bg-[#010409] flex-shrink-0 flex flex-col z-20 border-r border-[#30363d]">
-        <div class="p-2 border-b border-gray-700">
-            <button id="newChatBtn" class="w-full text-left nav-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                New Chat
-            </button>
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar sidebar-closed w-72 flex-shrink-0 flex flex-col">
+        <div class="p-2 space-y-2 border-b border-[var(--border-primary)] flex-shrink-0">
+            <button id="newChatBtn" class="nav-btn relative flex items-center p-3 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>New Chat</button>
+            <button id="tempChatBtn" class="nav-btn relative flex items-center p-3 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 22h-4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h4"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>Temporary Chat</button>
         </div>
-        <div id="chatListContainer" class="flex-1 p-2 space-y-1 overflow-y-auto">
-            <!-- Dynamic chat list populates here -->
+        <div class="flex-1 p-2 space-y-1 overflow-y-auto">
+            <h3 class="px-4 py-2 text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Recent Chats</h3>
+            <div id="chatListContainer"></div>
         </div>
-        <div class="p-4 border-t border-gray-700 text-xs text-gray-400">
-            <button class="w-full text-left nav-btn" onclick="showPage('about')">
-                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                 About
-            </button>
-            <p class="mt-4 text-center text-gray-500">Developed by T&T Mani</p>
+        <div class="p-2 border-t border-[var(--border-primary)] text-xs text-[var(--text-secondary)] flex-shrink-0">
+             <button id="settingsBtn" class="nav-btn relative flex items-center p-3 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>Settings</button>
         </div>
     </aside>
 
-    <!-- Main Content Area -->
-    <div class="flex-1 flex flex-col h-screen">
-        <header class="md:hidden flex items-center justify-between p-4 bg-[#0d1117] border-b border-gray-700">
-             <h2 class="text-lg font-semibold">Arivu AI</h2>
-             <button id="menu-toggle" class="text-gray-300">
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col h-screen bg-[var(--bg-primary)] min-w-0">
+        <header class="md:hidden flex items-center justify-between p-2 bg-[var(--bg-primary)] border-b border-[var(--border-primary)] flex-shrink-0">
+             <button id="menu-toggle" class="text-[var(--text-secondary)] p-2">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
             </button>
+             <h2 class="text-lg font-semibold">Arivu AI</h2>
+             <div class="w-8"></div> <!-- Spacer -->
         </header>
-
-        <!-- Chat Page -->
-        <main id="home" class="flex-1 flex flex-col overflow-hidden">
+        <main class="flex-1 flex flex-col overflow-hidden">
             <div id="chatContainer" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-8">
-                <!-- Placeholder for new chats -->
-                <div id="emptyChatPlaceholder" class="flex flex-col items-center justify-center h-full text-gray-400">
-                    <div class="w-16 h-16 rounded-full bg-blue-600/30 border border-blue-500/50 flex items-center justify-center mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M8 12h8"></path><path d="M12 8v8"></path></svg>
-                    </div>
-                    <h2 class="text-2xl font-semibold text-gray-300">How can I help you today?</h2>
+                <div id="emptyChatPlaceholder" class="flex flex-col items-center justify-center h-full text-[var(--text-secondary)]">
+                    <div class="w-16 h-16 rounded-full bg-[var(--accent-subtle)] border border-[var(--accent)]/50 flex items-center justify-center mb-4"><svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-[var(--accent)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M8 12h8"></path><path d="M12 8v8"></path></svg></div>
+                    <h2 class="text-2xl font-semibold text-[var(--text-primary)]">How can I help you today?</h2>
+                    <p class="mt-2 text-center text-sm">Start a new chat or load one from the sidebar.</p>
                 </div>
-                <!-- Messages are dynamically inserted here -->
             </div>
-            <div class="p-4 chat-input-wrapper">
+            <div class="p-4 chat-input-wrapper flex-shrink-0">
                 <div class="max-w-3xl mx-auto">
                     <div class="flex items-end chat-input rounded-xl p-2">
                          <div id="image-preview-container" class="hidden"></div>
-                         <label for="image-upload" class="utility-btn p-2 cursor-pointer" title="Upload Image">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-                        </label>
+                         <label for="image-upload" class="utility-btn p-2 cursor-pointer" title="Upload Image"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></label>
                         <input type="file" id="image-upload" class="hidden" accept="image/*">
-                         <label for="file-upload" class="utility-btn p-2 cursor-pointer" title="Upload File (coming soon)">
-                           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
-                        </label>
-                        <input type="file" id="file-upload" class="hidden">
-                        <textarea id="userQuestion" rows="1" placeholder="Ask Arivu anything, or upload an image..." class="flex-1 bg-transparent text-white focus:outline-none resize-none px-2 max-h-48"></textarea>
-                        <button id="askBtn" class="bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-lg ml-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-                        </button>
+                        <textarea id="userQuestion" rows="1" placeholder="Ask Arivu anything..." class="flex-1 bg-transparent text-[var(--text-primary)] focus:outline-none resize-none px-2 max-h-48"></textarea>
+                        <button id="askBtn" class="bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white p-2 rounded-lg ml-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
                     </div>
                 </div>
             </div>
         </main>
-        
-        <!-- About Page -->
-        <div id="about" class="hidden flex-1 p-4 md:p-6 overflow-y-auto">
-             <div class="max-w-3xl mx-auto bg-[#161b22] p-8 rounded-lg border border-[#30363d]">
-                <h2 class="text-2xl font-bold mb-4 text-white">About Arivu AI</h2>
-                <p class="text-gray-300 mb-4">
-                    This is a modern AI chat assistant powered by Google's Gemini model. It's designed to be a helpful, user-friendly, and responsive tool for answering questions and completing tasks, with support for text and image-based conversations.
-                </p>
-                <p class="text-gray-300">
-                    Built with ❤️ by <b class="text-white">T&T Mani</b>, a developer passionate about the intersection of AI and web technology.
-                </p>
-                 <button class="nav-btn mt-6" onclick="showPage('home')">Back to Chat</button>
+    </div>
+    
+    <!-- Overlays -->
+    <div id="overlay" class="md:hidden hidden fixed inset-0 bg-black bg-opacity-50 z-30"></div>
+    <div id="settings-modal-overlay" class="hidden fixed inset-0 bg-black bg-opacity-60 z-40"></div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md z-50">
+        <div class="m-4 bg-[var(--bg-glass)] backdrop-blur-xl border border-[var(--border-primary)] rounded-lg shadow-2xl text-[var(--text-primary)]">
+            <div class="flex items-center justify-between p-4 border-b border-[var(--border-primary)]">
+                <h2 class="text-lg font-semibold">Settings</h2>
+                <button id="close-settings-btn" class="p-2 rounded-full hover:bg-[var(--bg-tertiary)]"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            </div>
+            <div class="p-6 space-y-6">
+                <div class="flex items-center justify-between">
+                    <label for="theme-toggle" class="font-medium">Light Theme</label>
+                    <label class="switch"><input type="checkbox" id="theme-toggle"><span class="slider"></span></label>
+                </div>
+                <div class="border-t border-[var(--border-primary)] pt-6">
+                    <h3 class="font-semibold mb-2">About</h3>
+                    <p class="text-sm text-[var(--text-secondary)]">
+                        Arivu AI v4 is a standalone chat interface powered by Google's Gemini Pro. 
+                        Designed and developed by T&T Mani.
+                    </p>
+                </div>
             </div>
         </div>
     </div>
-    
-    <!-- Overlay for mobile sidebar -->
-    <div id="overlay" class="md:hidden hidden fixed inset-0 bg-black bg-opacity-50 z-10"></div>
 
 
     <script type="module">
-        // Firebase and external library imports
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, addDoc, collection, onSnapshot, query, serverTimestamp, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // --- Global State and Configuration ---
-        
-        // --- START: PASTE YOUR FIREBASE CONFIGURATION HERE ---
-        // 1. Go to your Firebase project console.
-        // 2. In Project Settings, find your web app.
-        // 3. Under "SDK setup and configuration", copy the config object.
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
-        // --- END: PASTE YOUR FIREBASE CONFIGURATION HERE ---
-
-
-        let db, auth, userId, firebaseReady = false;
-        let currentConversationId = null;
-        let unsubscribeMessages;
-        let unsubscribeConversations;
-        let uploadedImageBase64 = null;
-        let uploadedImageMimeType = null;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : firebaseConfig.projectId;
-        
-        const apiKey = ""; // This will be provided by the runtime environment.
-        const apiUrl = `https://generativelace.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-        let chatHistory = [];
+        // --- Global State ---
+        let uploadedImageBase64 = null, uploadedImageMimeType = null, currentChatId = null;
+        const apiKey = "AIzaSyDicsJgqwB9cbCYEU6cd3fj6Yd6ej50Myk";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
         const markdownConverter = new showdown.Converter({ tables: true, strikethrough: true, simplifiedAutoLink: true });
 
-        // --- DOM Element References ---
-        const askBtn = document.getElementById("askBtn");
-        const userQuestion = document.getElementById("userQuestion");
-        const chatContainer = document.getElementById("chatContainer");
-        const sidebar = document.getElementById('sidebar');
-        const menuToggle = document.getElementById('menu-toggle');
-        const overlay = document.getElementById('overlay');
-        const emptyChatPlaceholder = document.getElementById('emptyChatPlaceholder');
-        const chatListContainer = document.getElementById('chatListContainer');
-        const newChatBtn = document.getElementById('newChatBtn');
-        const imageUploadInput = document.getElementById('image-upload');
-        const imagePreviewContainer = document.getElementById('image-preview-container');
-        
-        // --- Event Listeners Setup ---
-        askBtn.addEventListener("click", handleAsk);
-        newChatBtn.addEventListener('click', startNewChat);
-        imageUploadInput.addEventListener('change', handleImageUpload);
+        // --- DOM Elements ---
+        const dom = {
+            askBtn: document.getElementById("askBtn"),
+            userQuestion: document.getElementById("userQuestion"),
+            chatContainer: document.getElementById("chatContainer"),
+            emptyChatPlaceholder: document.getElementById('emptyChatPlaceholder'),
+            newChatBtn: document.getElementById('newChatBtn'),
+            tempChatBtn: document.getElementById('tempChatBtn'),
+            imageUploadInput: document.getElementById('image-upload'),
+            imagePreviewContainer: document.getElementById('image-preview-container'),
+            sidebar: document.getElementById('sidebar'),
+            menuToggle: document.getElementById('menu-toggle'),
+            overlay: document.getElementById('overlay'),
+            chatListContainer: document.getElementById('chatListContainer'),
+            settingsBtn: document.getElementById('settingsBtn'),
+            settingsModal: document.getElementById('settings-modal'),
+            settingsModalOverlay: document.getElementById('settings-modal-overlay'),
+            closeSettingsBtn: document.getElementById('close-settings-btn'),
+            themeToggle: document.getElementById('theme-toggle'),
+            htmlEl: document.documentElement
+        };
 
-        userQuestion.addEventListener("keydown", (e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handleAsk();
-            }
-        });
-        userQuestion.addEventListener('input', () => { // Auto-resize textarea
-            userQuestion.style.height = 'auto';
-            userQuestion.style.height = (userQuestion.scrollHeight) + 'px';
-        });
-        menuToggle.addEventListener('click', toggleSidebar);
-        overlay.addEventListener('click', toggleSidebar);
+        // --- Event Listeners ---
+        dom.askBtn.addEventListener("click", handleAsk);
+        dom.newChatBtn.addEventListener('click', () => startNewChat(true));
+        dom.tempChatBtn.addEventListener('click', () => startNewChat(false));
+        dom.imageUploadInput.addEventListener('change', handleImageUpload);
+        dom.userQuestion.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleAsk(); }});
+        dom.userQuestion.addEventListener('input', () => { dom.userQuestion.style.height = 'auto'; dom.userQuestion.style.height = `${dom.userQuestion.scrollHeight}px`; });
+        dom.menuToggle.addEventListener('click', toggleSidebar);
+        dom.overlay.addEventListener('click', toggleSidebar);
+        dom.settingsBtn.addEventListener('click', toggleSettingsModal);
+        dom.closeSettingsBtn.addEventListener('click', toggleSettingsModal);
+        dom.settingsModalOverlay.addEventListener('click', toggleSettingsModal);
+        dom.themeToggle.addEventListener('change', handleThemeChange);
 
-        // --- Core Application Functions ---
-
-        /**
-         * Toggles between showing the main chat interface and the 'About' page.
-         * @param {string} page - The page to display ('home' or 'about').
-         */
-        window.showPage = (page) => {
-            ['home', 'about'].forEach(p => {
-                document.getElementById(p).classList.toggle('hidden', p !== page);
-            });
-             if (window.innerWidth < 768) { 
-                toggleSidebar();
-            }
+        // --- Core Logic ---
+        function startNewChat(isPersistent) {
+            currentChatId = isPersistent ? crypto.randomUUID() : 'temp';
+            clearChatView();
+            updateActiveChatInSidebar();
+            if (window.innerWidth < 768) toggleSidebar();
         }
 
-        /**
-         * Toggles the sidebar visibility on mobile devices.
-         */
-        function toggleSidebar() {
-            sidebar.classList.toggle('sidebar-closed');
-            sidebar.classList.toggle('sidebar-open');
-            overlay.classList.toggle('hidden');
-        }
-
-        /**
-         * Resets the chat interface to start a new conversation.
-         */
-        function startNewChat() {
-            currentConversationId = null;
-            chatHistory = [];
-            chatContainer.innerHTML = ''; // Clear chat view
-            emptyChatPlaceholder.classList.remove('hidden');
-            clearImagePreview();
-            document.querySelectorAll('#chatListContainer .nav-btn').forEach(btn => btn.classList.remove('active'));
-             if (window.innerWidth < 768) { 
-                toggleSidebar();
-            }
-        }
-
-        /**
-         * Main handler for sending a message. It processes user input,
-         * handles image data, calls the AI, and saves the conversation.
-         */
         async function handleAsk() {
-            const question = userQuestion.value.trim();
-            if (!question && !uploadedImageBase64) return; // Need at least text or an image
-
-            // Append user's message with text and image preview
-            appendMessage({ text: question, sender: 'user', image: uploadedImageBase64 ? imagePreviewContainer.querySelector('img').src : null });
+            const question = dom.userQuestion.value.trim();
+            if (!question && !uploadedImageBase64) return;
             
-            const tempUserQuestion = userQuestion.value;
-            userQuestion.value = '';
-            userQuestion.style.height = 'auto';
+            if (currentChatId && currentChatId !== 'temp' && !getChatTitle(currentChatId)) {
+                const title = question.substring(0, 40) || 'Image Query';
+                saveChatTitle(currentChatId, title);
+                renderChatList();
+            } else if (!currentChatId) {
+                currentChatId = crypto.randomUUID();
+                const title = question.substring(0, 40) || 'New Conversation';
+                saveChatTitle(currentChatId, title);
+                renderChatList();
+            }
+            
+            let chatHistory = loadChatHistory(currentChatId);
+            appendMessage({ text: question, sender: 'user', image: uploadedImageBase64 ? dom.imagePreviewContainer.querySelector('img').src : null });
+            
+            const userMessage = { role: "user", parts: [{ text: question }] };
+            if (uploadedImageBase64) {
+                 userMessage.parts.push({ inlineData: { mimeType: uploadedImageMimeType, data: uploadedImageBase64 } });
+            }
+            chatHistory.push(userMessage);
+            saveChatHistory(currentChatId, chatHistory);
+            
+            dom.userQuestion.value = '';
+            dom.userQuestion.style.height = 'auto';
+            clearImagePreview();
             showTypingIndicator();
 
-            // Prepare API payload
-            const apiParts = [];
-            if (question) {
-                apiParts.push({ text: question });
-            }
-            if (uploadedImageBase64) {
-                 apiParts.push({
-                    inlineData: {
-                        mimeType: uploadedImageMimeType,
-                        data: uploadedImageBase64
-                    }
-                });
-            }
-            chatHistory.push({ role: "user", parts: apiParts });
-            clearImagePreview(); // Clear preview after sending
-
-            // If this is a new chat, create a conversation entry in Firestore
-            if (!currentConversationId) {
-                const title = tempUserQuestion.substring(0, 30) || "Image Conversation";
-                currentConversationId = await createNewConversation(title);
-            }
+            const botResponse = await getBotResponse(chatHistory);
             
-            const botResponseText = await getBotResponse();
-            await saveMessageToConversation(question, botResponseText);
+            chatHistory.push({ role: "model", parts: [{ text: botResponse }] });
+            saveChatHistory(currentChatId, chatHistory);
         }
 
-        /**
-         * Appends a message to the chat container.
-         * @param {object} {text, sender, image} - Message details.
-         */
-        function appendMessage({ text, sender, image = null }) {
-            emptyChatPlaceholder.classList.add('hidden');
-            const messageDiv = document.createElement('div');
-            
-            const imageHtml = image ? `<img src="${image}" class="max-w-xs rounded-md my-2 border border-[#30363d]">` : '';
-            const content = sender === 'bot' ? markdownConverter.makeHtml(text) : text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
-            messageDiv.innerHTML = `
-                <div class="flex items-start gap-4 max-w-3xl mx-auto">
-                    ${sender === 'bot' ? 
-                        `<div class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white bg-blue-600">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"></path><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M12 12h4"></path><path d="M12 16h4"></path><path d="M8 12h.01"></path><path d="M8 16h.01"></path></svg>
-                        </div>` : ''
-                    }
-                    <div class="flex-1 pt-1 ${sender === 'bot' ? 'markdown-content' : ''} ${sender === 'user' ? 'ml-12' : ''}">
-                        ${imageHtml}
-                        ${content}
-                    </div>
-                </div>
-            `;
-            chatContainer.appendChild(messageDiv);
-            
-            if (sender === 'bot') {
-                processCodeBlocks(messageDiv);
-            }
-            scrollToBottom();
-        }
-
-        /**
-         * Displays the AI "thinking..." indicator.
-         */
-        function showTypingIndicator() {
-            const typingIndicator = document.createElement('div');
-            typingIndicator.id = 'typing-indicator';
-            typingIndicator.innerHTML = `
-                <div class="flex items-start gap-4 max-w-3xl mx-auto">
-                    <div class="w-8 h-8 rounded-full bg-blue-600 flex-shrink-0 flex items-center justify-center text-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"></path><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M12 12h4"></path><path d="M12 16h4"></path><path d="M8 12h.01"></path><path d="M8 16h.01"></path></svg>
-                    </div>
-                    <div class="flex-1 pt-3">
-                        <span class="animate-pulse">Arivu is thinking...</span>
-                    </div>
-                </div>
-            `;
-            chatContainer.appendChild(typingIndicator);
-            scrollToBottom();
-            askBtn.disabled = true;
-        }
-
-        /**
-         * Removes the AI "thinking..." indicator.
-         */
-        function removeTypingIndicator() {
-            document.getElementById('typing-indicator')?.remove();
-            askBtn.disabled = false;
-        }
-        
-        /**
-         * Processes code blocks within a message to add syntax highlighting and a copy button.
-         * @param {HTMLElement} container - The message element containing the code blocks.
-         */
-        function processCodeBlocks(container) {
-            const codeBlocks = container.querySelectorAll('pre code');
-            codeBlocks.forEach(block => {
-                const language = [...block.classList].find(cls => cls.startsWith('language-'))?.replace('language-', '') || 'plaintext';
-                const preElement = block.parentElement;
-                if(preElement.parentElement.classList.contains('code-wrapper')) return;
-                
-                const wrapper = document.createElement('div');
-                wrapper.className = 'code-wrapper';
-                
-                const header = document.createElement('div');
-                header.className = 'code-header';
-                header.innerHTML = `<span>${language}</span><button class="copy-btn">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                    Copy
-                </button>`;
-                
-                preElement.parentNode.insertBefore(wrapper, preElement);
-                wrapper.appendChild(header);
-                wrapper.appendChild(preElement);
-                
-                header.querySelector('.copy-btn').addEventListener('click', () => {
-                    navigator.clipboard.writeText(block.innerText);
-                    const btn = header.querySelector('.copy-btn');
-                    const originalText = btn.innerHTML;
-                    btn.innerHTML = 'Copied!';
-                    setTimeout(() => { btn.innerHTML = originalText; }, 2000);
-                });
-
-                hljs.highlightElement(block);
-            });
-        }
-
-        function scrollToBottom() {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        // --- Image Handling ---
-
-        /**
-         * Handles the file selection event for image uploads.
-         * @param {Event} event - The file input change event.
-         */
-        function handleImageUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const base64String = e.target.result.split(',')[1];
-                uploadedImageBase64 = base64String;
-                uploadedImageMimeType = file.type;
-                showImagePreview(e.target.result);
-            };
-            reader.readAsDataURL(file);
-        }
-
-        /**
-         * Displays a thumbnail of the uploaded image in the input bar.
-         * @param {string} dataUrl - The data URL of the image to preview.
-         */
-        function showImagePreview(dataUrl) {
-            imagePreviewContainer.innerHTML = `
-                <img id="image-preview" src="${dataUrl}" alt="Image preview">
-                <span id="remove-image-btn">&times;</span>
-            `;
-            imagePreviewContainer.classList.remove('hidden');
-            document.getElementById('remove-image-btn').addEventListener('click', clearImagePreview);
-        }
-
-        /**
-         * Clears the uploaded image data and removes the preview.
-         */
-        function clearImagePreview() {
-            uploadedImageBase64 = null;
-            uploadedImageMimeType = null;
-            imageUploadInput.value = ''; // Reset file input
-            imagePreviewContainer.innerHTML = '';
-            imagePreviewContainer.classList.add('hidden');
-        }
-
-
-        // --- API & Firebase Database Functions ---
-        
-        /**
-         * Fetches a response from the Gemini API.
-         * @returns {Promise<string>} The text response from the AI.
-         */
-        async function getBotResponse() {
+        async function getBotResponse(history) {
             try {
-                const payload = { contents: chatHistory };
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                });
-                if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: history }) });
+                if (!response.ok) throw new Error(`API Error: ${response.status} ${response.statusText}`);
                 const result = await response.json();
-                const botMessage = result.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I encountered an issue. Please try again.";
-                chatHistory.push({ role: "model", parts: [{ text: botMessage }] });
-                
+                if (result.promptFeedback?.blockReason) throw new Error(`Request blocked: ${result.promptFeedback.blockReason}`);
+                const botMessage = result.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't generate a response.";
                 removeTypingIndicator();
-                appendMessage({text: botMessage, sender: 'bot'});
+                appendMessage({ text: botMessage, sender: 'bot' });
                 return botMessage;
             } catch (error) {
                 console.error('Error fetching bot response:', error);
                 removeTypingIndicator();
-                const errorMessage = "Sorry, I am unable to process your request at the moment. Please try again later.";
-                appendMessage({text: errorMessage, sender: 'bot'});
+                const errorMessage = `Sorry, an error occurred: ${error.message}.`;
+                appendMessage({ text: errorMessage, sender: 'bot' });
                 return errorMessage;
             }
         }
         
-        /**
-         * Creates a new conversation document in Firestore.
-         * @param {string} title - The title for the new conversation.
-         * @returns {Promise<string|null>} The ID of the newly created conversation.
-         */
-        async function createNewConversation(title) {
-            if (!firebaseReady) return null;
-            try {
-                const conversationsCollection = collection(db, 'artifacts', appId, 'users', userId, 'conversations');
-                const newConvRef = doc(conversationsCollection);
-                await setDoc(newConvRef, {
-                    title: title,
-                    createdAt: serverTimestamp()
-                });
-                loadConversation(newConvRef.id);
-                return newConvRef.id;
-            } catch (error) {
-                console.error("Error creating new conversation:", error);
-                return null;
-            }
-        }
-
-        /**
-         * Saves a user question and AI answer to the current conversation in Firestore.
-         * @param {string} question - The user's question.
-         * @param {string} answer - The AI's answer.
-         */
-        async function saveMessageToConversation(question, answer) {
-            if (!firebaseReady || !currentConversationId) return;
-            try {
-                const messagesCollection = collection(db, 'artifacts', appId, 'users', userId, 'conversations', currentConversationId, 'messages');
-                await addDoc(messagesCollection, {
-                    question, answer, timestamp: serverTimestamp()
-                });
-            } catch (error) {
-                console.error("Error saving message:", error);
-            }
-        }
+        // --- UI & View Management ---
+        function toggleSidebar() { dom.sidebar.classList.toggle('sidebar-closed'); dom.overlay.classList.toggle('hidden'); }
+        function toggleSettingsModal() { dom.settingsModal.classList.toggle('hidden'); dom.settingsModalOverlay.classList.toggle('hidden'); }
+        function clearChatView() { dom.chatContainer.innerHTML = ''; dom.emptyChatPlaceholder.classList.remove('hidden'); clearImagePreview(); dom.userQuestion.value = ''; dom.userQuestion.focus(); }
         
-        /**
-         * Loads and displays the list of past conversations in the sidebar.
-         */
-        function loadConversationList() {
-             if (unsubscribeConversations) unsubscribeConversations(); 
-             
-             const conversationsCollection = collection(db, 'artifacts', appId, 'users', userId, 'conversations');
-             const q = query(conversationsCollection);
-
-             unsubscribeConversations = onSnapshot(q, (snapshot) => {
-                let convos = [];
-                snapshot.forEach(doc => convos.push({id: doc.id, ...doc.data()}));
-                convos.sort((a,b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
-                
-                chatListContainer.innerHTML = convos.map(c => `
-                    <button class="w-full text-left nav-btn truncate ${c.id === currentConversationId ? 'active' : ''}" onclick="window.loadConversation('${c.id}')" title="${c.title}">
-                        ${c.title}
-                    </button>
-                `).join('');
-             }, (error) => console.error("Error loading conversations: ", error));
-        }
-
-        /**
-         * Loads a specific conversation's messages into the chat window.
-         * @param {string} convId - The ID of the conversation to load.
-         */
-        window.loadConversation = (convId) => {
-            if (convId === currentConversationId) return;
-            if (unsubscribeMessages) unsubscribeMessages();
-            
-            currentConversationId = convId;
-            chatHistory = [];
-            chatContainer.innerHTML = '';
-            emptyChatPlaceholder.classList.add('hidden');
-            clearImagePreview();
-            
-            document.querySelectorAll('#chatListContainer .nav-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelector(`button[onclick="window.loadConversation('${convId}')"]`)?.classList.add('active');
-            
-            const messagesCollection = collection(db, 'artifacts', appId, 'users', userId, 'conversations', convId, 'messages');
-            const q = query(messagesCollection);
-            
-            unsubscribeMessages = onSnapshot(q, snapshot => {
-                const messages = [];
-                snapshot.forEach(doc => messages.push(doc.data()));
-                messages.sort((a,b) => (a.timestamp?.seconds ?? 0) - (b.timestamp?.seconds ?? 0));
-                
-                chatContainer.innerHTML = ''; // Clear before loading
-                messages.forEach(msg => {
-                    // Note: Image previews from past chats are not re-rendered for simplicity.
-                    appendMessage({ text: msg.question, sender: 'user' });
-                    appendMessage({ text: msg.answer, sender: 'bot' });
-                    // Rebuild history for API context
-                    chatHistory.push({ role: "user", parts: [{ text: msg.question }] });
-                    chatHistory.push({ role: "model", parts: [{ text: msg.answer }] });
-                });
-            });
+        window.loadChat = (chatId) => {
+            currentChatId = chatId;
+            const chatHistory = loadChatHistory(chatId);
+            clearChatView();
+            dom.emptyChatPlaceholder.classList.add('hidden');
+            chatHistory.forEach(turn => appendMessage({ text: turn.parts[0].text, sender: turn.role === 'user' ? 'user' : 'bot' }));
+            updateActiveChatInSidebar();
             if (window.innerWidth < 768) toggleSidebar();
-        };
-
-        // --- Application Initialization ---
-        
-        /**
-         * Initializes Firebase app and authentication services.
-         */
-        async function initializeAppAndAuth() {
-            if (!firebaseConfig || firebaseConfig.apiKey === "YOUR_API_KEY") {
-                console.error("Firebase config is missing or incomplete. Please paste your project's configuration into the script.");
-                // You could display an error message to the user here
-                chatContainer.innerHTML = `<div class="text-center text-red-400 p-8">Application is not configured correctly. Please contact the site administrator.</div>`;
-                return;
-            }
-            try {
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                
-                onAuthStateChanged(auth, user => {
-                    if (user) {
-                        userId = user.uid;
-                        firebaseReady = true;
-                        loadConversationList();
-                    }
-                });
-                await signInAnonymously(auth);
-            } catch (error)
-                console.error("Firebase Initialization Error:", error);
-            }
         }
         
-        // Start the application
-        initializeAppAndAuth();
-    </script>
-</body>
-</html>
-
-
+        window.deleteChat = (event, chatId) => {
+            event.stopPropagation();
+            const allChats = getAllChats();
+            delete allChats[chatId];
+            localSto
