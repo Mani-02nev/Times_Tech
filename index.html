@@ -63,7 +63,7 @@
             -webkit-backdrop-filter: blur(16px);
             border-right: 1px solid var(--border-primary);
             transition: transform 0.3s ease-in-out, background-color 0.3s, border-color 0.3s;
-            position: fixed; /* Changed for mobile overlay */
+            position: fixed;
             top: 0; left: 0; height: 100%; z-index: 40;
         }
         @media (min-width: 768px) {
@@ -73,31 +73,26 @@
         .sidebar-closed { transform: translateX(-100%); }
         @media (min-width: 768px) { .sidebar-closed { transform: translateX(0); } }
 
-        .nav-btn {
-            color: var(--text-secondary);
-            transition: background-color 0.2s, color 0.2s;
-        }
-        .nav-btn:hover {
-            background-color: var(--bg-tertiary);
-            color: var(--text-primary);
-        }
-        .nav-btn.active {
-            background-color: var(--accent-subtle);
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-        .nav-btn .delete-btn { color: var(--text-secondary); }
-        .nav-btn:hover .delete-btn { display: block; }
+        .nav-btn { color: var(--text-secondary); transition: background-color 0.2s, color 0.2s; }
+        .nav-btn:hover { background-color: var(--bg-tertiary); color: var(--text-primary); }
+        .nav-btn.active { background-color: var(--accent-subtle); color: var(--text-primary); font-weight: 600; }
         .nav-btn .delete-btn:hover { background-color: var(--danger-hover); color: var(--danger-text); }
-        .chat-input {
-            background-color: var(--bg-input);
-            border: 1px solid var(--border-secondary);
-            transition: border-color 0.2s, background-color 0.3s;
-        }
+        .chat-input { background-color: var(--bg-input); border: 1px solid var(--border-secondary); transition: border-color 0.2s, background-color 0.3s; }
         .chat-input:focus-within { border-color: var(--accent); }
-        .markdown-content pre{background-color:var(--bg-secondary)}.markdown-content pre code.hljs{background:0 0}.markdown-content .code-header{background-color:var(--bg-tertiary);color:var(--text-tertiary);border-bottom:1px solid var(--border-primary)}.markdown-content code:not(pre code){background-color:var(--bg-tertiary);color:var(--accent-hover)}.markdown-content th{background-color:var(--bg-tertiary)}.markdown-content blockquote{border-left:4px solid var(--border-primary);color:var(--text-secondary)}.markdown-content a{color:var(--accent-hover)}
-
-        /* Toggle Switch */
+        .markdown-content pre { background-color: var(--bg-secondary); border-radius: 0 0 0.5rem 0.5rem; margin-top: 0 !important; padding: 1rem; }
+        .markdown-content pre code.hljs { background: transparent; }
+        .markdown-content .code-header { background-color: var(--bg-tertiary); color: var(--text-tertiary); border-bottom: 1px solid var(--border-primary); }
+        .markdown-content code:not(pre code) { background-color: var(--bg-tertiary); color: var(--accent-hover); padding: 0.2em 0.4em; border-radius: 4px; font-size: 85%; }
+        .markdown-content th { background-color: var(--bg-tertiary); }
+        .markdown-content blockquote { border-left: 4px solid var(--border-primary); color: var(--text-secondary); }
+        .markdown-content a { color: var(--accent-hover); }
+        .markdown-content p { margin-bottom: 1rem; }
+        .markdown-content h1, .markdown-content h2, .markdown-content h3 { margin-top: 1.5rem; margin-bottom: 1rem; font-weight: 600; }
+        
+        #image-preview-container { position: relative; margin-right: 8px; margin-bottom: 4px; }
+        #image-preview { width: 48px; height: 48px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-secondary); }
+        #remove-image-btn { position: absolute; top: -6px; right: -6px; width: 20px; height: 20px; background-color: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-secondary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; line-height: 1; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
+        #remove-image-btn:hover { background-color: var(--danger-hover); color: var(--danger-text); }
         .switch{position:relative;display:inline-block;width:40px;height:24px}.switch input{opacity:0;width:0;height:0}.slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#ccc;transition:.4s;border-radius:34px}.slider:before{position:absolute;content:"";height:16px;width:16px;left:4px;bottom:4px;background-color:#fff;transition:.4s;border-radius:50%}input:checked+.slider{background-color:var(--accent)}input:checked+.slider:before{transform:translateX(16px)}
     </style>
 </head>
@@ -105,43 +100,43 @@
     <!-- Sidebar -->
     <aside id="sidebar" class="sidebar sidebar-closed w-72 flex-shrink-0 flex flex-col">
         <div class="p-2 space-y-2 border-b border-[var(--border-primary)] flex-shrink-0">
-            <button id="newChatBtn" class="nav-btn relative flex items-center p-3 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>New Chat</button>
-            <button id="tempChatBtn" class="nav-btn relative flex items-center p-3 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 22h-4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h4"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>Temporary Chat</button>
+            <button id="newChatBtn" class="nav-btn w-full text-left relative flex items-center p-3 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>New Chat</button>
+            <button id="tempChatBtn" class="nav-btn w-full text-left relative flex items-center p-3 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 22h-4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h4"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>Temporary Chat</button>
         </div>
         <div class="flex-1 p-2 space-y-1 overflow-y-auto">
             <h3 class="px-4 py-2 text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Recent Chats</h3>
             <div id="chatListContainer"></div>
         </div>
         <div class="p-2 border-t border-[var(--border-primary)] text-xs text-[var(--text-secondary)] flex-shrink-0">
-             <button id="settingsBtn" class="nav-btn relative flex items-center p-3 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>Settings</button>
+             <button id="settingsBtn" class="nav-btn w-full text-left relative flex items-center p-3 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>Settings</button>
         </div>
     </aside>
 
     <!-- Main Content -->
     <div class="flex-1 flex flex-col h-screen bg-[var(--bg-primary)] min-w-0">
         <header class="md:hidden flex items-center justify-between p-2 bg-[var(--bg-primary)] border-b border-[var(--border-primary)] flex-shrink-0">
-             <button id="menu-toggle" class="text-[var(--text-secondary)] p-2">
+             <button id="menu-toggle" class="text-[var(--text-secondary)] p-2 rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
             </button>
              <h2 class="text-lg font-semibold">Arivu AI</h2>
-             <div class="w-8"></div> <!-- Spacer -->
+             <div class="w-10"></div> <!-- Spacer -->
         </header>
         <main class="flex-1 flex flex-col overflow-hidden">
             <div id="chatContainer" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-8">
                 <div id="emptyChatPlaceholder" class="flex flex-col items-center justify-center h-full text-[var(--text-secondary)]">
-                    <div class="w-16 h-16 rounded-full bg-[var(--accent-subtle)] border border-[var(--accent)]/50 flex items-center justify-center mb-4"><svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-[var(--accent)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M8 12h8"></path><path d="M12 8v8"></path></svg></div>
+                    <div class="w-16 h-16 rounded-full bg-[var(--accent-subtle)] border border-[var(--accent)]/50 flex items-center justify-center mb-4"><svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-[var(--accent)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L9.5 8.5 4 10l5.5 5.5L8 21l4-3 4 3-1.5-5.5L20 10l-5.5-1.5z"/></svg></div>
                     <h2 class="text-2xl font-semibold text-[var(--text-primary)]">How can I help you today?</h2>
                     <p class="mt-2 text-center text-sm">Start a new chat or load one from the sidebar.</p>
                 </div>
             </div>
-            <div class="p-4 chat-input-wrapper flex-shrink-0">
+            <div class="p-4 chat-input-wrapper flex-shrink-0 bg-[var(--bg-primary)]">
                 <div class="max-w-3xl mx-auto">
                     <div class="flex items-end chat-input rounded-xl p-2">
-                         <div id="image-preview-container" class="hidden"></div>
-                         <label for="image-upload" class="utility-btn p-2 cursor-pointer" title="Upload Image"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></label>
+                         <div id="image-preview-container" class="hidden self-end"></div>
+                         <label for="image-upload" class="utility-btn p-2 cursor-pointer text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors" title="Upload Image"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></label>
                         <input type="file" id="image-upload" class="hidden" accept="image/*">
-                        <textarea id="userQuestion" rows="1" placeholder="Ask Arivu anything..." class="flex-1 bg-transparent text-[var(--text-primary)] focus:outline-none resize-none px-2 max-h-48"></textarea>
-                        <button id="askBtn" class="bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white p-2 rounded-lg ml-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
+                        <textarea id="userQuestion" rows="1" placeholder="Ask Arivu anything..." class="flex-1 bg-transparent text-[var(--text-primary)] focus:outline-none resize-none px-2 max-h-48 self-center"></textarea>
+                        <button id="askBtn" class="bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white p-2 rounded-lg ml-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed self-end"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
                     </div>
                 </div>
             </div>
@@ -179,6 +174,7 @@
     <script type="module">
         // --- Global State ---
         let uploadedImageBase64 = null, uploadedImageMimeType = null, currentChatId = null;
+        // IMPORTANT: Replace with your actual Gemini API key
         const apiKey = "AIzaSyDicsJgqwB9cbCYEU6cd3fj6Yd6ej50Myk";
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
         const markdownConverter = new showdown.Converter({ tables: true, strikethrough: true, simplifiedAutoLink: true });
@@ -211,7 +207,7 @@
         dom.tempChatBtn.addEventListener('click', () => startNewChat(false));
         dom.imageUploadInput.addEventListener('change', handleImageUpload);
         dom.userQuestion.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleAsk(); }});
-        dom.userQuestion.addEventListener('input', () => { dom.userQuestion.style.height = 'auto'; dom.userQuestion.style.height = `${dom.userQuestion.scrollHeight}px`; });
+        dom.userQuestion.addEventListener('input', autoResizeTextarea);
         dom.menuToggle.addEventListener('click', toggleSidebar);
         dom.overlay.addEventListener('click', toggleSidebar);
         dom.settingsBtn.addEventListener('click', toggleSettingsModal);
@@ -231,6 +227,7 @@
             const question = dom.userQuestion.value.trim();
             if (!question && !uploadedImageBase64) return;
             
+            // If this is the first message in a new persistent chat, create and save it
             if (currentChatId && currentChatId !== 'temp' && !getChatTitle(currentChatId)) {
                 const title = question.substring(0, 40) || 'Image Query';
                 saveChatTitle(currentChatId, title);
@@ -252,8 +249,9 @@
             chatHistory.push(userMessage);
             saveChatHistory(currentChatId, chatHistory);
             
+            // Clear inputs and show thinking indicator
             dom.userQuestion.value = '';
-            dom.userQuestion.style.height = 'auto';
+            autoResizeTextarea();
             clearImagePreview();
             showTypingIndicator();
 
@@ -276,13 +274,12 @@
             } catch (error) {
                 console.error('Error fetching bot response:', error);
                 removeTypingIndicator();
-                const errorMessage = `Sorry, an error occurred: ${error.message}.`;
+                const errorMessage = `Sorry, an error occurred: ${error.message}. Please check the console and your API key.`;
                 appendMessage({ text: errorMessage, sender: 'bot' });
                 return errorMessage;
             }
         }
-        
-        // --- UI & View Management ---
+
         function toggleSidebar() { dom.sidebar.classList.toggle('sidebar-closed'); dom.overlay.classList.toggle('hidden'); }
         function toggleSettingsModal() { dom.settingsModal.classList.toggle('hidden'); dom.settingsModalOverlay.classList.toggle('hidden'); }
         function clearChatView() { dom.chatContainer.innerHTML = ''; dom.emptyChatPlaceholder.classList.remove('hidden'); clearImagePreview(); dom.userQuestion.value = ''; dom.userQuestion.focus(); }
@@ -292,29 +289,59 @@
             const chatHistory = loadChatHistory(chatId);
             clearChatView();
             dom.emptyChatPlaceholder.classList.add('hidden');
-            chatHistory.forEach(turn => appendMessage({ text: turn.parts[0].text, sender: turn.role === 'user' ? 'user' : 'bot' }));
+            chatHistory.forEach(turn => {
+                const imagePart = turn.parts.find(p => p.inlineData);
+                const textPart = turn.parts.find(p => p.text);
+                // Note: This won't display past images, as base64 isn't stored. A more complex storage solution would be needed.
+                appendMessage({ text: textPart?.text || '', sender: turn.role === 'user' ? 'user' : 'bot' });
+            });
             updateActiveChatInSidebar();
             if (window.innerWidth < 768) toggleSidebar();
         }
-
-        
         
         window.deleteChat = (event, chatId) => {
             event.stopPropagation();
-            const allChats = getAllChats();
-            delete allChats[chatId];
-            localStorage.setItem('arivu-chats-v4', JSON.stringify(allChats));
-            if (currentChatId === chatId) { currentChatId = null; clearChatView(); }
-            renderChatList();
+            if (confirm('Are you sure you want to delete this chat?')) {
+                const allChats = getAllChats();
+                delete allChats[chatId];
+                localStorage.setItem('arivu-chats-v4', JSON.stringify(allChats));
+                if (currentChatId === chatId) { currentChatId = null; clearChatView(); }
+                renderChatList();
+            }
         }
 
         function appendMessage({ text, sender, image = null }) {
             dom.emptyChatPlaceholder.classList.add('hidden');
             const messageDiv = document.createElement('div');
-            messageDiv.className = 'message-bubble';
-            messageDiv.innerHTML = `<div class="flex items-start gap-4 max-w-3xl mx-auto"><div class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white ${sender === 'bot' ? 'bg-[var(--accent)]' : 'bg-[var(--text-secondary)]'}">${sender==='bot'?'<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"></path><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M12 12h4"></path><path d="M12 16h4"></path><path d="M8 12h.01"></path><path d="M8 16h.01"></path></svg>':'<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>'}</div><div class="flex-1 pt-1 ${sender==='bot'?'markdown-content':''}">${image?`<img src="${image}" class="max-w-xs rounded-md my-2 border border-[var(--border-primary)]">`:''}<p></p></div></div>`;
-            const p = messageDiv.querySelector('p');
-            if(sender === 'bot') { p.innerHTML = markdownConverter.makeHtml(text); processCodeBlocks(p.parentElement); } else { p.textContent = text; }
+            
+            const botIcon = `
+                <div class="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
+                    <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L9.5 8.5 4 10l5.5 5.5L8 21l4-3 4 3-1.5-5.5L20 10l-5.5-1.5z"/></svg>
+                </div>`;
+            const userIcon = `
+                <div class="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center bg-slate-600">
+                    <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>`;
+
+            messageDiv.innerHTML = `
+                <div class="flex items-start gap-3 max-w-3xl mx-auto">
+                    ${sender === 'bot' ? botIcon : userIcon}
+                    <div class="flex-1 pt-1 ${sender === 'bot' ? 'markdown-content' : ''}">
+                        ${image ? `<img src="${image}" class="max-w-xs rounded-md my-2 border border-[var(--border-primary)]">` : ''}
+                        <div class="content-text"></div>
+                    </div>
+                </div>`;
+            
+            const contentContainer = messageDiv.querySelector('.content-text');
+            if (text) {
+                if (sender === 'bot') {
+                    contentContainer.innerHTML = markdownConverter.makeHtml(text);
+                    processCodeBlocks(contentContainer);
+                } else {
+                    contentContainer.textContent = text;
+                }
+            }
+            
             dom.chatContainer.appendChild(messageDiv);
             scrollToBottom();
         }
@@ -331,23 +358,148 @@
         }
 
         // --- Utility Functions ---
-        function showTypingIndicator(){const e=document.createElement("div");e.id="typing-indicator",e.innerHTML='<div class="flex items-start gap-4 max-w-3xl mx-auto"><div class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white bg-[var(--accent)]"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M12 12h4"/><path d="M12 16h4"/><path d="M8 12h.01"/><path d="M8 16h.01"/></svg></div><div class="flex-1 pt-3"><span class="animate-pulse">Arivu is thinking...</span></div></div>',dom.chatContainer.appendChild(e),scrollToBottom(),dom.askBtn.disabled=!0}
-        function removeTypingIndicator(){document.getElementById("typing-indicator")?.remove(),dom.askBtn.disabled=!1,dom.userQuestion.focus()}
-        function processCodeBlocks(e){e.querySelectorAll("pre").forEach(e=>{const t=e.querySelector("code");if(t){const o=[...t.classList].find(e=>e.startsWith("language-"))?.replace("language-","")||"plaintext";if(!e.parentElement.classList.contains("code-wrapper")){const c=document.createElement("div");c.className="code-wrapper";const n=document.createElement("div");n.className="code-header",n.innerHTML=`<span>${o}</span><button class="copy-btn"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>Copy</button>`,e.parentNode.insertBefore(c,e),c.appendChild(n),c.appendChild(e),n.querySelector(".copy-btn").addEventListener("click",e=>{navigator.clipboard.writeText(t.innerText);const o=e.currentTarget,c=o.innerHTML;o.innerHTML="Copied!",setTimeout(()=>{o.innerHTML=c},2e3)}),hljs.highlightElement(t)}}})}
-        function scrollToBottom(){dom.chatContainer.scrollTop=dom.chatContainer.scrollHeight}
-        function handleImageUpload(e){const t=e.target.files[0];if(!t)return;const o=new FileReader;o.onload=t=>{const o=t.target.result.split(",")[1];uploadedImageBase64=o,uploadedImageMimeType=e.target.files[0].type,showImagePreview(t.target.result)},o.readAsDataURL(t)}
-        function showImagePreview(e){dom.imagePreviewContainer.innerHTML=`<img id="image-preview" src="${e}" alt="Image preview"><span id="remove-image-btn">&times;</span>`,dom.imagePreviewContainer.classList.remove("hidden"),document.getElementById("remove-image-btn").addEventListener("click",clearImagePreview)}
-        function clearImagePreview(){uploadedImageBase64=null,uploadedImageMimeType=null,dom.imageUploadInput.value="",dom.imagePreviewContainer.innerHTML="",dom.imagePreviewContainer.classList.add("hidden")}
+        function showTypingIndicator(){
+            const indicator = document.createElement("div");
+            indicator.id="typing-indicator";
+            indicator.innerHTML=`
+                <div class="flex items-start gap-3 max-w-3xl mx-auto">
+                    <div class="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
+                        <svg class="w-5 h-5 text-white animate-pulse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L9.5 8.5 4 10l5.5 5.5L8 21l4-3 4 3-1.5-5.5L20 10l-5.5-1.5z"/></svg>
+                    </div>
+                    <div class="flex-1 pt-3 space-y-2">
+                        <div class="bg-[var(--bg-tertiary)] h-3 w-32 rounded-full animate-pulse"></div>
+                    </div>
+                </div>`;
+            dom.chatContainer.appendChild(indicator);
+            scrollToBottom();
+            dom.askBtn.disabled = true;
+        }
+
+        function removeTypingIndicator(){
+            document.getElementById("typing-indicator")?.remove();
+            dom.askBtn.disabled = false;
+            dom.userQuestion.focus();
+        }
+        
+        function processCodeBlocks(parentElement) {
+            parentElement.querySelectorAll("pre").forEach(pre => {
+                const code = pre.querySelector("code");
+                if (code && !pre.parentElement.classList.contains("code-wrapper")) {
+                    const language = [...code.classList].find(c => c.startsWith("language-"))?.replace("language-", "") || "plaintext";
+                    const wrapper = document.createElement("div");
+                    wrapper.className = "code-wrapper rounded-lg border border-[var(--border-primary)] overflow-hidden";
+                    
+                    const header = document.createElement("div");
+                    header.className = "code-header flex justify-between items-center p-2";
+                    header.innerHTML = `
+                        <span class="text-xs font-sans">${language}</span>
+                        <button class="copy-btn flex items-center gap-1.5 text-xs px-2 py-1 rounded-md hover:bg-[var(--bg-primary)] transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                            Copy
+                        </button>`;
+
+                    pre.parentNode.insertBefore(wrapper, pre);
+                    wrapper.appendChild(header);
+                    wrapper.appendChild(pre);
+
+                    header.querySelector(".copy-btn").addEventListener("click", e => {
+                        navigator.clipboard.writeText(code.innerText);
+                        const button = e.currentTarget;
+                        const originalHTML = button.innerHTML;
+                        button.innerHTML = "Copied!";
+                        setTimeout(() => { button.innerHTML = originalHTML; }, 2000);
+                    });
+                    
+                    hljs.highlightElement(code);
+                }
+            });
+        }
+        
+        function scrollToBottom(){ dom.chatContainer.scrollTop = dom.chatContainer.scrollHeight; }
+        
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                uploadedImageBase64 = e.target.result.split(",")[1];
+                uploadedImageMimeType = file.type;
+                showImagePreview(e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function showImagePreview(src) {
+            dom.imagePreviewContainer.innerHTML = `<img id="image-preview" src="${src}" alt="Image preview"><button id="remove-image-btn" title="Remove image">&times;</button>`;
+            dom.imagePreviewContainer.classList.remove("hidden");
+            document.getElementById("remove-image-btn").addEventListener("click", clearImagePreview);
+        }
+
+        function clearImagePreview() {
+            uploadedImageBase64 = null;
+            uploadedImageMimeType = null;
+            dom.imageUploadInput.value = "";
+            dom.imagePreviewContainer.innerHTML = "";
+            dom.imagePreviewContainer.classList.add("hidden");
+        }
+
+        function autoResizeTextarea() {
+            dom.userQuestion.style.height = 'auto';
+            dom.userQuestion.style.height = `${dom.userQuestion.scrollHeight}px`;
+        }
         
         // --- LocalStorage Persistence ---
         const CHAT_STORAGE_KEY = 'arivu-chats-v4';
         function getAllChats() { return JSON.parse(localStorage.getItem(CHAT_STORAGE_KEY) || '{}'); }
         function getChatTitle(chatId) { return getAllChats()[chatId]?.title; }
-        function loadChatHistory(chatId) { if (chatId === 'temp' || !chatId) return []; return getAllChats()[chatId]?.history || []; }
-        function saveChatTitle(chatId,title){if("temp"===chatId)return;const t=getAllChats();t[chatId]||(t[chatId]={history:[],createdAt:(new Date).toISOString()}),t[chatId].title=title,localStorage.setItem(CHAT_STORAGE_KEY,JSON.stringify(t))}
-        function saveChatHistory(chatId,history){if("temp"===chatId)return;const t=getAllChats();t[chatId]&&(t[chatId].history=history,localStorage.setItem(CHAT_STORAGE_KEY,JSON.stringify(t)))}
-        function renderChatList(){const e=getAllChats(),t=Object.entries(e).sort((([,e],[,t])=>(new Date(t.createdAt))-(new Date(e.createdAt))));dom.chatListContainer.innerHTML=t.map((([e,t])=>`<button class="nav-btn relative flex items-center p-3 rounded-lg truncate" onclick="window.loadChat('${e}')" title="${t.title}"><span class="flex-1 pr-8">${t.title}</span><span class="delete-btn absolute right-2 top-1/2 -translate-y-1/2 p-1" onclick="window.deleteChat(event,'${e}')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></span></button>`)).join(""),updateActiveChatInSidebar()}
-        function updateActiveChatInSidebar(){document.querySelectorAll(".nav-btn").forEach((e=>{e.classList.remove("active")})),currentChatId?"temp"===currentChatId?dom.tempChatBtn.classList.add("active"):document.querySelector(`button[onclick="window.loadChat('${currentChatId}')"]`)?.classList.add("active"):dom.newChatBtn.classList.add("active")}
+        function loadChatHistory(chatId) { return (chatId === 'temp' || !chatId) ? [] : (getAllChats()[chatId]?.history || []); }
+        
+        function saveChatTitle(chatId, title) {
+            if (chatId === 'temp') return;
+            const allChats = getAllChats();
+            if (!allChats[chatId]) {
+                allChats[chatId] = { history: [], createdAt: new Date().toISOString() };
+            }
+            allChats[chatId].title = title;
+            localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(allChats));
+        }
+
+        function saveChatHistory(chatId, history) {
+            if (chatId === 'temp') return;
+            const allChats = getAllChats();
+            if (allChats[chatId]) {
+                allChats[chatId].history = history;
+                localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(allChats));
+            }
+        }
+
+        function renderChatList() {
+            const allChats = getAllChats();
+            const sortedChats = Object.entries(allChats).sort(([, a], [, b]) => new Date(b.createdAt) - new Date(a.createdAt));
+            dom.chatListContainer.innerHTML = sortedChats.map(([id, chat]) => `
+                <button class="nav-btn group relative flex items-center p-3 rounded-lg truncate w-full text-left" onclick="window.loadChat('${id}')" title="${chat.title}">
+                    <span class="flex-1 pr-8">${chat.title}</span>
+                    <span class="delete-btn absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity" onclick="window.deleteChat(event,'${id}')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                    </span>
+                </button>
+            `).join("");
+            updateActiveChatInSidebar();
+        }
+
+        function updateActiveChatInSidebar() {
+            document.querySelectorAll("#sidebar .nav-btn").forEach(btn => btn.classList.remove("active"));
+            if (currentChatId) {
+                if (currentChatId === 'temp') {
+                    dom.tempChatBtn.classList.add("active");
+                } else {
+                    const activeBtn = document.querySelector(`button[onclick="window.loadChat('${currentChatId}')"]`);
+                    if(activeBtn) activeBtn.classList.add("active");
+                }
+            } else {
+                 // No chat selected, can decide to highlight 'New Chat' or nothing
+            }
+        }
         
         // --- Initialization ---
         function init() {
@@ -356,6 +508,7 @@
             dom.themeToggle.checked = (savedTheme === 'light');
             renderChatList();
             updateActiveChatInSidebar();
+            autoResizeTextarea();
             console.log("Arivu AI Chat v4 is ready.");
         }
 
@@ -363,5 +516,4 @@
     </script>
 </body>
 </html>
-        
-        
+   
