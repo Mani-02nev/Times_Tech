@@ -296,9 +296,72 @@
             updateActiveChatInSidebar();
             if (window.innerWidth < 768) toggleSidebar();
         }
+
+        
         
         window.deleteChat = (event, chatId) => {
             event.stopPropagation();
             const allChats = getAllChats();
             delete allChats[chatId];
-            localSto
+            localStorage.setItem('arivu-chats-v4', JSON.stringify(allChats));
+            if (currentChatId === chatId) { currentChatId = null; clearChatView(); }
+            renderChatList();
+        }
+
+        function appendMessage({ text, sender, image = null }) {
+            dom.emptyChatPlaceholder.classList.add('hidden');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message-bubble';
+            messageDiv.innerHTML = `<div class="flex items-start gap-4 max-w-3xl mx-auto"><div class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white ${sender === 'bot' ? 'bg-[var(--accent)]' : 'bg-[var(--text-secondary)]'}">${sender==='bot'?'<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"></path><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M12 12h4"></path><path d="M12 16h4"></path><path d="M8 12h.01"></path><path d="M8 16h.01"></path></svg>':'<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>'}</div><div class="flex-1 pt-1 ${sender==='bot'?'markdown-content':''}">${image?`<img src="${image}" class="max-w-xs rounded-md my-2 border border-[var(--border-primary)]">`:''}<p></p></div></div>`;
+            const p = messageDiv.querySelector('p');
+            if(sender === 'bot') { p.innerHTML = markdownConverter.makeHtml(text); processCodeBlocks(p.parentElement); } else { p.textContent = text; }
+            dom.chatContainer.appendChild(messageDiv);
+            scrollToBottom();
+        }
+        
+        // --- Theme Management ---
+        function applyTheme(theme) {
+            if (theme === 'light') dom.htmlEl.classList.add('light-theme');
+            else dom.htmlEl.classList.remove('light-theme');
+        }
+        function handleThemeChange() {
+            const newTheme = dom.themeToggle.checked ? 'light' : 'dark';
+            localStorage.setItem('arivu-theme-v4', newTheme);
+            applyTheme(newTheme);
+        }
+
+        // --- Utility Functions ---
+        function showTypingIndicator(){const e=document.createElement("div");e.id="typing-indicator",e.innerHTML='<div class="flex items-start gap-4 max-w-3xl mx-auto"><div class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white bg-[var(--accent)]"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M12 12h4"/><path d="M12 16h4"/><path d="M8 12h.01"/><path d="M8 16h.01"/></svg></div><div class="flex-1 pt-3"><span class="animate-pulse">Arivu is thinking...</span></div></div>',dom.chatContainer.appendChild(e),scrollToBottom(),dom.askBtn.disabled=!0}
+        function removeTypingIndicator(){document.getElementById("typing-indicator")?.remove(),dom.askBtn.disabled=!1,dom.userQuestion.focus()}
+        function processCodeBlocks(e){e.querySelectorAll("pre").forEach(e=>{const t=e.querySelector("code");if(t){const o=[...t.classList].find(e=>e.startsWith("language-"))?.replace("language-","")||"plaintext";if(!e.parentElement.classList.contains("code-wrapper")){const c=document.createElement("div");c.className="code-wrapper";const n=document.createElement("div");n.className="code-header",n.innerHTML=`<span>${o}</span><button class="copy-btn"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>Copy</button>`,e.parentNode.insertBefore(c,e),c.appendChild(n),c.appendChild(e),n.querySelector(".copy-btn").addEventListener("click",e=>{navigator.clipboard.writeText(t.innerText);const o=e.currentTarget,c=o.innerHTML;o.innerHTML="Copied!",setTimeout(()=>{o.innerHTML=c},2e3)}),hljs.highlightElement(t)}}})}
+        function scrollToBottom(){dom.chatContainer.scrollTop=dom.chatContainer.scrollHeight}
+        function handleImageUpload(e){const t=e.target.files[0];if(!t)return;const o=new FileReader;o.onload=t=>{const o=t.target.result.split(",")[1];uploadedImageBase64=o,uploadedImageMimeType=e.target.files[0].type,showImagePreview(t.target.result)},o.readAsDataURL(t)}
+        function showImagePreview(e){dom.imagePreviewContainer.innerHTML=`<img id="image-preview" src="${e}" alt="Image preview"><span id="remove-image-btn">&times;</span>`,dom.imagePreviewContainer.classList.remove("hidden"),document.getElementById("remove-image-btn").addEventListener("click",clearImagePreview)}
+        function clearImagePreview(){uploadedImageBase64=null,uploadedImageMimeType=null,dom.imageUploadInput.value="",dom.imagePreviewContainer.innerHTML="",dom.imagePreviewContainer.classList.add("hidden")}
+        
+        // --- LocalStorage Persistence ---
+        const CHAT_STORAGE_KEY = 'arivu-chats-v4';
+        function getAllChats() { return JSON.parse(localStorage.getItem(CHAT_STORAGE_KEY) || '{}'); }
+        function getChatTitle(chatId) { return getAllChats()[chatId]?.title; }
+        function loadChatHistory(chatId) { if (chatId === 'temp' || !chatId) return []; return getAllChats()[chatId]?.history || []; }
+        function saveChatTitle(chatId,title){if("temp"===chatId)return;const t=getAllChats();t[chatId]||(t[chatId]={history:[],createdAt:(new Date).toISOString()}),t[chatId].title=title,localStorage.setItem(CHAT_STORAGE_KEY,JSON.stringify(t))}
+        function saveChatHistory(chatId,history){if("temp"===chatId)return;const t=getAllChats();t[chatId]&&(t[chatId].history=history,localStorage.setItem(CHAT_STORAGE_KEY,JSON.stringify(t)))}
+        function renderChatList(){const e=getAllChats(),t=Object.entries(e).sort((([,e],[,t])=>(new Date(t.createdAt))-(new Date(e.createdAt))));dom.chatListContainer.innerHTML=t.map((([e,t])=>`<button class="nav-btn relative flex items-center p-3 rounded-lg truncate" onclick="window.loadChat('${e}')" title="${t.title}"><span class="flex-1 pr-8">${t.title}</span><span class="delete-btn absolute right-2 top-1/2 -translate-y-1/2 p-1" onclick="window.deleteChat(event,'${e}')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></span></button>`)).join(""),updateActiveChatInSidebar()}
+        function updateActiveChatInSidebar(){document.querySelectorAll(".nav-btn").forEach((e=>{e.classList.remove("active")})),currentChatId?"temp"===currentChatId?dom.tempChatBtn.classList.add("active"):document.querySelector(`button[onclick="window.loadChat('${currentChatId}')"]`)?.classList.add("active"):dom.newChatBtn.classList.add("active")}
+        
+        // --- Initialization ---
+        function init() {
+            const savedTheme = localStorage.getItem('arivu-theme-v4') || 'dark';
+            applyTheme(savedTheme);
+            dom.themeToggle.checked = (savedTheme === 'light');
+            renderChatList();
+            updateActiveChatInSidebar();
+            console.log("Arivu AI Chat v4 is ready.");
+        }
+
+        init();
+    </script>
+</body>
+</html>
+        
+        
