@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Automation Tools - Build & Automate</title>
+    
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Configure Tailwind for Inter font -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'brand-purple': {
+                            DEFAULT: '#6d28d9',
+                            'light': '#8b5cf6',
+                            'dark': '#5b21b6',
+                        },
+                        'brand-teal': {
+                            DEFAULT: '#0d9488',
+                            'light': '#14b8a6',
+                        }
+                    },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: 0, transform: 'translateY(10px)' },
+                            '100%': { opacity: 1, transform: 'translateY(0px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom CSS (if needed) -->
+    <style>
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        /* Custom scrollbar (optional) */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111827; /* bg-gray-900 */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #374151; /* bg-gray-700 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4b5563; /* bg-gray-600 */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 font-sans antialiased">
+
+    <!-- Header / Navigation -->
+    <header class="bg-gray-900/80 backdrop-blur-md sticky top-0 z-50 w-full border-b border-gray-700/50">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <a href="#" class="flex-shrink-0 flex items-center group">
+                    <!-- Inline SVG Logo -->
+                    <svg class="w-8 h-8 text-brand-purple group-hover:text-brand-purple-light transition-colors" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zm-1-12h2v4h-2V8zm0 6h2v2h-2v-2z"/>
+                        <path d="M11 8h2v4h-2zM11 14h2v2h-2z" fill-opacity="0.6"/>
+                        <path d="M8 11h4v2H8zM12 11h4v2h-4z" fill-opacity="0.4"/>
+                    </svg>
+                    <span class="ml-2 text-xl font-bold text-white group-hover:text-gray-100 transition-colors">AutomateAI</span>
+                </a>
+                
+                <!-- Desktop Nav -->
+                <div class="hidden md:flex md:items-center md:space-x-6">
+                    <a href="#" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">AI Tools</a>
+                    <a href="#" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Pricing</a>
+                    <a href="#" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Docs</a>
+                    <a href="#" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Community</a>
+                </div>
+                
+                <!-- Desktop CTAs -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="#" class="text-gray-300 hover:text-white text-sm font-medium transition-colors">Log In</a>
+                    <a href="#" class="bg-brand-purple hover:bg-brand-purple-dark text-white px-4 py-2 rounded-md text-sm font-medium shadow-lg transition-all duration-300 transform hover:scale-105">
+                        Start Free
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-purple-light">
+                        <span class="sr-only">Open main menu</span>
+                        <!-- Hamburger Icon -->
+                        <svg id="menu-icon-open" class="h-6 w-6 block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                        </svg>
+                        <!-- Close Icon -->
+                        <svg id="menu-icon-close" class="h-6 w-6 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-gray-700">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 animate-fade-in">
+                <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">AI Tools</a>
+                <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Pricing</a>
+                <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Docs</a>
+                <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Community</a>
+            </div>
+            <div class="pt-4 pb-3 border-t border-gray-700 animate-fade-in" style="animation-delay: 0.1s;">
+                <div class="px-5">
+                    <a href="#" class="block w-full text-center bg-brand-purple hover:bg-brand-purple-dark text-white px-4 py-2 rounded-md text-base font-medium shadow-lg transition-colors">
+                        Start Free
+                    </a>
+                </div>
+                <div class="mt-3 px-5 text-center">
+                    <a href="#" class="text-gray-300 hover:text-white text-base font-medium transition-colors">Log In</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section class="relative pt-16 pb-24 sm:pt-24 sm:pb-32 overflow-hidden">
+            <!-- Background Gradient -->
+            <div class="absolute inset-0 -z-10 overflow-hidden">
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-[150%] max-w-[1200px] -z-10">
+                    <div class="absolute inset-0 bg-gradient-radial from-brand-purple/20 via-brand-purple/5 to-transparent blur-3xl"></div>
+                </div>
+            </div>
+            
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight">
+                    Automate Your World with
+                    <span class="block text-transparent bg-clip-text bg-gradient-to-r from-brand-purple-light to-brand-teal-light">AI Workflow Automation</span>
+                </h1>
+                <p class="mt-6 max-w-2xl mx-auto text-lg sm:text-xl text-gray-300">
+                    Visually build, test, and run complex AI-powered workflows. Connect any app, use any AI model, and reclaim your time.
+                </p>
+                <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <a href="#" class="w-full sm:w-auto bg-brand-purple hover:bg-brand-purple-dark text-white px-8 py-3 rounded-md text-lg font-medium shadow-lg transition-all duration-300 transform hover:scale-105">
+                        Start Building (It's Free)
+                    </a>
+                    <a href="#" class="w-full sm:w-auto bg-gray-700 hover:bg-gray-600 text-white px-8 py-3 rounded-md text-lg font-medium transition-colors">
+                        Book a Demo
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Mock UI Visual -->
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-24">
+                <div class="relative bg-gray-800/50 border border-gray-700 rounded-xl shadow-2xl overflow-hidden p-4 md:p-6 backdrop-blur-sm">
+                    <!-- Window Controls -->
+                    <div class="flex space-x-1.5 mb-4">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    </div>
+                    
+                    <!-- Workflow Canvas -->
+                    <div class="relative flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8 p-4 md:p-8 min-h-[250px] bg-gray-800 rounded-lg">
+                        <!-- Node 1: Trigger -->
+                        <div class="flex items-center p-4 bg-gray-700 rounded-lg shadow-lg animate-float">
+                            <svg class="w-6 h-6 text-brand-teal-light mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                            <span class="font-medium text-white">New Email</span>
+                        </div>
+                        
+                        <!-- Connector -->
+                        <div class="w-px h-8 md:w-16 md:h-px bg-gray-600 dashed-line"></div>
+
+                        <!-- Node 2: AI Action -->
+                        <div class="flex items-center p-4 bg-gray-700 rounded-lg shadow-lg animate-float" style="animation-delay: 0.5s;">
+                            <svg class="w-6 h-6 text-brand-purple-light mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M12 21v-1m0-16a.5.5 0 01.5.5V10a.5.5 0 01-1 0V4.5a.5.5 0 01.5-.5z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14a4 4 0 100-8 4 4 0 000 8z" /></svg>
+                            <span class="font-medium text-white">Summarize (AI)</span>
+                        </div>
+
+                        <!-- Connector -->
+                        <div class="w-px h-8 md:w-16 md:h-px bg-gray-600 dashed-line"></div>
+
+                        <!-- Node 3: Output -->
+                        <div class="flex items-center p-4 bg-gray-700 rounded-lg shadow-lg animate-float" style="animation-delay: 1s;">
+                            <svg class="w-6 h-6 text-blue-400 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                            <span class="font-medium text-white">Post to Slack</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trusted By Section -->
+        <section class="py-16 sm:py-24 bg-gray-900">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <p class="text-center text-lg font-medium text-gray-400">
+                    Powering AI automation for teams at
+                </p>
+                <div class="mt-8 grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-8 items-center">
+                    <div class="flex justify-center grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition duration-300">
+                        <span class="text-2xl font-bold text-gray-300">TechCo</span>
+                    </div>
+                    <div class="flex justify-center grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition duration-300">
+                        <span class="text-2xl font-bold text-gray-300">Innova</span>
+                    </div>
+                    <div class="flex justify-center grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition duration-300">
+                        <span class="text-2xl font-bold text-gray-300">StartUp</span>
+                    </div>
+                    <div class="flex justify-center grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition duration-300">
+                        <span class="text-2xl font-bold text-gray-300">DataCorp</span>
+                    </div>
+                    <div class="flex justify-center grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition duration-300">
+                        <span class="text-2xl font-bold text-gray-300">LogicFlow</span>
+                    </div>
+                    <div class="flex justify-center grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition duration-300">
+                        <span class="text-2xl font-bold text-gray-300">AI Labs</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="py-16 sm:py-24 bg-gray-800/50">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2 class="text-base font-semibold text-brand-purple-light tracking-wide uppercase">Features</h2>
+                    <p class="mt-2 text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+                        Everything you need to automate
+                    </p>
+                    <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-300">
+                        From simple tasks to complex, multi-step AI-driven processes, our platform has you covered.
+                    </p>
+                </div>
+
+                <div class="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Feature 1 -->
+                    <div class="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 transition-all duration-300 hover:border-brand-purple-light hover:shadow-2xl">
+                        <div class="flex-shrink-0">
+                            <div class="flex items-center justify-center h-12 w-12 rounded-md bg-brand-purple text-white">
+                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h18" /></svg>
+                            </div>
+                        </div>
+                        <h3 class="mt-5 text-xl font-bold text-white">Visual Workflow Builder</h3>
+                        <p class="mt-2 text-base text-gray-300">
+                            Drag-and-drop nodes to create powerful automations. No code required, but powerful enough for developers.
+                        </p>
+                    </div>
+                    <!-- Feature 2 -->
+                    <div class="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 transition-all duration-300 hover:border-brand-purple-light hover:shadow-2xl">
+                        <div class="flex-shrink-0">
+                            <div class="flex items-center justify-center h-12 w-12 rounded-md bg-brand-purple text-white">
+                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                            </div>
+                        </div>
+                        <h3 class="mt-5 text-xl font-bold text-white">Any AI Model</h3>
+                        <p class="mt-2 text-base text-gray-300">
+                            Connect to OpenAI (GPT-4, GPT-3.5), Claude, Gemini, or host your own open-source models. The choice is yours.
+                        </p>
+                    </div>
+                    <!-- Feature 3 -->
+                    <div class="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 transition-all duration-300 hover:border-brand-purple-light hover:shadow-2xl">
+                        <div class="flex-shrink-0">
+                            <div class="flex items-center justify-center h-12 w-12 rounded-md bg-brand-purple text-white">
+                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V4a2 2 0 012-2h8z" /></svg>
+                            </div>
+                        </div>
+                        <h3 class="mt-5 text-xl font-bold text-white">AI Agents</h3>
+                        <p class="mt-2 text-base text-gray-300">
+                            Build autonomous agents that can reason, plan, and execute complex tasks on your behalf.
+                        </p>
+                    </div>
+                    <!-- Feature 4 -->
+                    <div class="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 transition-all duration-300 hover:border-brand-purple-light hover:shadow-2xl">
+                        <div class="flex-shrink-0">
+                            <div class="flex items-center justify-center h-12 w-12 rounded-md bg-brand-purple text-white">
+                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
+                            </div>
+                        </div>
+                        <h3 class="mt-5 text-xl font-bold text-white">1000+ Integrations</h3>
+                        <p class="mt-2 text-base text-gray-300">
+                            Connect all your tools. From Slack and Google Sheets to custom webhooks and internal APIs.
+                        </p>
+                    </div>
+                    <!-- Feature 5 -->
+                    <div class="bg-gray-800 p-6 rounded
