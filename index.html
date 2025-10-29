@@ -657,10 +657,10 @@
         let uploadedImageBase64 = null, uploadedImageMimeType = null, currentChatId = null;
         let currentChatMode = 'none'; // 'none', 'web', 'creative'
         // IMPORTANT: Replace with your actual Gemini API key
-        const apiKey = "AIzaSyDm6E_P6cpiUnbks4wpl3NK5Y6aXiBk3eQ";
+        const apiKey = "AIzaSyDicsJgqwB9cbCYEU6cd3fj6Yd6ej50Myk";
 
-        // --- THIS IS THE FIXED LINE ---
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent?key=${apiKey}`;
+        // --- CHANGE 1: Switched to the stable 'gemini-pro' text model ---
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
 
         const markdownConverter = new showdown.Converter({ tables: true, strikethrough: true, simplifiedAutoLink: true });
 
@@ -733,6 +733,7 @@
             if (window.innerWidth < 768) toggleMobileSidebar();
         }
 
+        // --- CHANGE 2: Modified handleAsk ---
         async function handleAsk() {
             const question = dom.userQuestion.value.trim();
 
@@ -744,6 +745,8 @@
             }
 
             const finalQuestion = systemPrefix + question;
+
+            // Allow press 'ask' if there is text OR an image
             if (!question && !uploadedImageBase64) return;
 
             if (currentChatId && currentChatId !== 'temp' && !getChatTitle(currentChatId)) {
@@ -758,12 +761,21 @@
             }
 
             let chatHistory = loadChatHistory(currentChatId);
+
+            // Append the message to the UI (this CAN show the image)
             appendMessage({ text: question, sender: 'user', image: uploadedImageBase64 ? dom.imagePreviewContainer.querySelector('img').src : null });
 
+            // --- This is the key change ---
+            // Create the message for the API. gemini-pro ONLY accepts text.
+            // Even if an image was uploaded, we *only* send the text part.
             const userMessage = { role: "user", parts: [{ text: finalQuestion }] };
-            if (uploadedImageBase64) {
-                userMessage.parts.push({ inlineData: { mimeType: uploadedImageMimeType, data: uploadedImageBase64 } });
+
+            // If the user *only* uploaded an image and wrote no text, send a placeholder.
+            if (!question && uploadedImageBase64) {
+                userMessage.parts[0].text = "[User uploaded an image (AI cannot see it)]";
             }
+            // --- End of key change ---
+
             chatHistory.push(userMessage);
             saveChatHistory(currentChatId, chatHistory);
 
@@ -778,45 +790,33 @@
             saveChatHistory(currentChatId, chatHistory);
         }
 
+        // --- CHANGE 3: Modified getBotResponse ---
         async function getBotResponse(history) {
             try {
-                // Construct the payload for gemini-pro-vision
-                // It needs a slightly different format (text and images must be in the same 'parts' array)
-                const visionHistory = history.map(turn => {
-                    if (turn.role === 'user' && turn.parts.length > 1 && turn.parts[1].inlineData) {
-                        // This is an image + text prompt. Combine them.
-                        return {
-                            role: 'user',
-                            parts: [
-                                { text: turn.parts[0].text },
-                                { inlineData: turn.parts[1].inlineData }
-                            ]
+                // --- This is the key change ---
+                // We must clean the history to remove any image data,
+                // as gemini-pro only accepts text.
+                const cleanedHistory = history
+                    .map(turn => {
+                        // Find the first text part
+                        const textPart = turn.parts.find(part => part.text);
+                        if (textPart) {
+                            return {
+                                role: turn.role,
+                                parts: [{ text: textPart.text }]
+                            };
                         }
-                    }
-                    // Handle cases where a history item is just text (user or model)
-                    if (turn.parts.length > 0 && turn.parts[0].text) {
-                        return {
-                            role: turn.role,
-                            parts: [{ text: turn.parts[0].text }]
-                        }
-                    }
-                    // Filter out potentially empty/invalid history parts
-                    return null;
-                }).filter(Boolean); // Remove any null entries
+                        // If a turn had no text (e.g., was an image), it will be filtered out
+                        return null;
+                    })
+                    .filter(Boolean); // Remove null/empty turns
+                // --- End of key change ---
 
-
-                const payload = {
-                    contents: visionHistory,
-                    // Add generation config if needed, e.g.
-                    // generationConfig: {
-                    //     "maxOutputTokens": 2048
-                    // }
-                };
+                const payload = { contents: cleanedHistory }; // Use the cleaned history
 
                 const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
 
                 if (!response.ok) {
-                    // Try to get more error details from the response body
                     const errorBody = await response.json();
                     const errorDetails = errorBody.error?.message || `${response.status} ${response.statusText}`;
                     throw new Error(`API Error: ${errorDetails}`);
@@ -835,7 +835,6 @@
             } catch (error) {
                 console.error('Error fetching bot response:', error);
                 removeTypingIndicator();
-                // Display the more detailed error message
                 const errorMessage = `Sorry, an error occurred: ${error.message}. Please check the console and your API key.`;
                 appendMessage({ text: errorMessage, sender: 'bot' });
                 return errorMessage;
@@ -862,16 +861,16 @@
             setChatMode('none');
         }
 
+        // --- CHANGE 4: Modified window.loadChat ---
         window.loadChat = (chatId) => {
             currentChatId = chatId;
             const chatHistory = loadChatHistory(chatId);
             clearChatView();
             dom.emptyChatPlaceholder.classList.add('hidden');
 
-            // This logic needs to handle the vision model's history structure
             chatHistory.forEach(turn => {
+                // Only look for text parts. Ignore any image data from old chats.
                 const textPart = turn.parts.find(p => p.text)?.text || '';
-                const imagePart = turn.parts.find(p => p.inlineData);
 
                 let userText = textPart;
                 if (turn.role === 'user') {
@@ -881,15 +880,10 @@
                         userText = userText.replace(/^Please provide a highly creative.*mode\)\. /, '');
                     }
 
-                    // Re-create the image preview for loaded user messages
-                    if (imagePart) {
-                        const imgSrc = `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}`;
-                        appendMessage({ text: userText, sender: 'user', image: imgSrc });
-                    } else {
-                        appendMessage({ text: userText, sender: 'user' });
-                    }
+                    // We don't need to check for images, just append the text.
+                    appendMessage({ text: userText, sender: 'user' });
 
-                } else {
+                } else { // 'model' role
                     appendMessage({ text: userText, sender: 'bot' });
                 }
             });
@@ -908,6 +902,9 @@
             }
         }
 
+        // This function is unchanged and works correctly.
+        // It will show the image in the user bubble if 'image' is passed,
+        // which handleAsk does, but loadChat does not (which is correct).
         function appendMessage({ text, sender, image = null }) {
             dom.emptyChatPlaceholder.classList.add('hidden');
             const messageDiv = document.createElement('div');
@@ -923,16 +920,14 @@
                     <div class="flex items-start gap-3 max-w-3xl mx-auto">
                         ${botIcon}
                         <div class="flex-1 pt-1 markdown-content">
-                            ${image ? `<img src="${image}" class="max-w-xs rounded-md my-2 border border-[var(--border-primary)]">` : ''}
                             <div class="content-text"></div>
                         </div>
                     </div>`;
             } else {
-                // User message with glass bubble
                 messageDiv.innerHTML = `
                     <div class="flex justify-end max-w-3xl mx-auto">
                         <div class="user-message-bubble">
-                             ${image ? `<img src="${image}" alt="User upload" class="max-w-xs rounded-md my-2 border border-[var(--border-primary)]">` : ''}
+                            ${image ? `<img src="${image}" alt="User upload" class="max-w-xs rounded-md my-2 border border-[var(--border-primary)]">` : ''}
                             <div class="content-text"></div>
                         </div>
                     </div>`;
@@ -946,6 +941,9 @@
                 } else {
                     contentContainer.textContent = text;
                 }
+            } else if (image && sender === 'user' && !text) {
+                // Handle image-only upload text fallback
+                contentContainer.textContent = "[User uploaded an image (AI cannot see it)]";
             }
 
             dom.chatContainer.appendChild(messageDiv);
@@ -1117,7 +1115,7 @@
                 dom.splashScreen.classList.add('hidden');
             }, 1500);
 
-            console.log("Arivu AI Chat v5 is ready.");
+            console.log("Arivu AI Chat v5 (gemini-pro text-only) is ready.");
         }
 
         init();
