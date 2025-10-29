@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="en">
 
 <head>
@@ -380,7 +381,6 @@
             }
         }
 
-        /* --- NEW: User message glass effect --- */
         .user-message-bubble {
             background-color: var(--bg-input);
             border: 1px solid var(--border-secondary);
@@ -400,7 +400,6 @@
             border: 1px solid var(--border-primary);
         }
 
-        /* --- NEW: Message fade-in animation --- */
         .message-appear {
             animation: fade-in 0.3s ease-out;
         }
@@ -417,7 +416,6 @@
             }
         }
 
-        /* --- NEW: Typing indicator dots animation --- */
         .dot-flashing {
             position: relative;
             width: 8px;
@@ -428,7 +426,6 @@
             animation: dot-flashing 1s infinite linear alternate;
             animation-delay: .5s;
             margin-left: 4px;
-            /* Align with bot text */
         }
 
         .dot-flashing::before,
@@ -469,12 +466,12 @@
     </style>
 </head>
 
-<body class="w-full h-screen overflow-hidden flex">
+<body class="w-full h-full overflow-hidden flex">
 
     <div id="splash-screen">
         <h2
             class="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
-            Arivu AI V5
+            Arivu AI
         </h2>
     </div>
 
@@ -528,7 +525,7 @@
         </div>
     </aside>
 
-    <div class="flex-1 flex flex-col h-screen bg-[var(--bg-primary)] min-w-0">
+    <div class="flex-1 flex flex-col h-full bg-[var(--bg-primary)] min-w-0">
         <header
             class="md:hidden flex items-center justify-between p-2 bg-[var(--bg-primary)] border-b border-[var(--border-primary)] flex-shrink-0">
             <button id="menu-toggle"
@@ -660,8 +657,11 @@
         let uploadedImageBase64 = null, uploadedImageMimeType = null, currentChatId = null;
         let currentChatMode = 'none'; // 'none', 'web', 'creative'
         // IMPORTANT: Replace with your actual Gemini API key
-        const apiKey = "AIzaSyCt5Oryv95bDRQb5kBeGBMTYEZGFuXEDGg";
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        const apiKey = "AIzaSyDicsJgqwB9cbCYEU6cd3fj6Yd6ej50Myk";
+
+        // --- THIS IS THE FIXED LINE ---
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent?key=${apiKey}`;
+
         const markdownConverter = new showdown.Converter({ tables: true, strikethrough: true, simplifiedAutoLink: true });
 
         // --- DOM Elements ---
@@ -780,10 +780,54 @@
 
         async function getBotResponse(history) {
             try {
-                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: history }) });
-                if (!response.ok) throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                // Construct the payload for gemini-pro-vision
+                // It needs a slightly different format (text and images must be in the same 'parts' array)
+                const visionHistory = history.map(turn => {
+                    if (turn.role === 'user' && turn.parts.length > 1 && turn.parts[1].inlineData) {
+                        // This is an image + text prompt. Combine them.
+                        return {
+                            role: 'user',
+                            parts: [
+                                { text: turn.parts[0].text },
+                                { inlineData: turn.parts[1].inlineData }
+                            ]
+                        }
+                    }
+                    // Handle cases where a history item is just text (user or model)
+                    if (turn.parts.length > 0 && turn.parts[0].text) {
+                        return {
+                            role: turn.role,
+                            parts: [{ text: turn.parts[0].text }]
+                        }
+                    }
+                    // Filter out potentially empty/invalid history parts
+                    return null;
+                }).filter(Boolean); // Remove any null entries
+
+
+                const payload = {
+                    contents: visionHistory,
+                    // Add generation config if needed, e.g.
+                    // generationConfig: {
+                    //     "maxOutputTokens": 2048
+                    // }
+                };
+
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+
+                if (!response.ok) {
+                    // Try to get more error details from the response body
+                    const errorBody = await response.json();
+                    const errorDetails = errorBody.error?.message || `${response.status} ${response.statusText}`;
+                    throw new Error(`API Error: ${errorDetails}`);
+                }
+
                 const result = await response.json();
-                if (result.promptFeedback?.blockReason) throw new Error(`Request blocked: ${result.promptFeedback.blockReason}`);
+
+                if (result.promptFeedback?.blockReason) {
+                    throw new Error(`Request blocked: ${result.promptFeedback.blockReason}`);
+                }
+
                 const botMessage = result.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't generate a response.";
                 removeTypingIndicator();
                 appendMessage({ text: botMessage, sender: 'bot' });
@@ -791,11 +835,13 @@
             } catch (error) {
                 console.error('Error fetching bot response:', error);
                 removeTypingIndicator();
+                // Display the more detailed error message
                 const errorMessage = `Sorry, an error occurred: ${error.message}. Please check the console and your API key.`;
                 appendMessage({ text: errorMessage, sender: 'bot' });
                 return errorMessage;
             }
         }
+
 
         function toggleMobileSidebar() {
             dom.sidebar.classList.toggle('sidebar-closed');
@@ -821,18 +867,31 @@
             const chatHistory = loadChatHistory(chatId);
             clearChatView();
             dom.emptyChatPlaceholder.classList.add('hidden');
-            chatHistory.forEach(turn => {
-                const textPart = turn.parts.find(p => p.text);
 
-                let userText = textPart?.text || '';
+            // This logic needs to handle the vision model's history structure
+            chatHistory.forEach(turn => {
+                const textPart = turn.parts.find(p => p.text)?.text || '';
+                const imagePart = turn.parts.find(p => p.inlineData);
+
+                let userText = textPart;
                 if (turn.role === 'user') {
                     if (userText.startsWith("Please search the web")) {
                         userText = userText.replace(/^Please search the web.*answer\. /, '');
                     } else if (userText.startsWith("Please provide a highly creative")) {
                         userText = userText.replace(/^Please provide a highly creative.*mode\)\. /, '');
                     }
+
+                    // Re-create the image preview for loaded user messages
+                    if (imagePart) {
+                        const imgSrc = `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}`;
+                        appendMessage({ text: userText, sender: 'user', image: imgSrc });
+                    } else {
+                        appendMessage({ text: userText, sender: 'user' });
+                    }
+
+                } else {
+                    appendMessage({ text: userText, sender: 'bot' });
                 }
-                appendMessage({ text: userText, sender: turn.role === 'user' ? 'user' : 'bot' });
             });
             updateActiveChatInSidebar();
             if (window.innerWidth < 768) toggleMobileSidebar();
@@ -849,11 +908,9 @@
             }
         }
 
-        // --- MODIFIED: appendMessage function ---
         function appendMessage({ text, sender, image = null }) {
             dom.emptyChatPlaceholder.classList.add('hidden');
             const messageDiv = document.createElement('div');
-            // Add fade-in animation class
             messageDiv.classList.add('message-appear');
 
             const botIcon = `
@@ -862,7 +919,6 @@
                 </div>`;
 
             if (sender === 'bot') {
-                // Bot message: icon on left
                 messageDiv.innerHTML = `
                     <div class="flex items-start gap-3 max-w-3xl mx-auto">
                         ${botIcon}
@@ -872,11 +928,11 @@
                         </div>
                     </div>`;
             } else {
-                // User message: right-aligned glass bubble, no icon
+                // User message with glass bubble
                 messageDiv.innerHTML = `
                     <div class="flex justify-end max-w-3xl mx-auto">
                         <div class="user-message-bubble">
-                            ${image ? `<img src="${image}">` : ''}
+                             ${image ? `<img src="${image}" alt="User upload" class="max-w-xs rounded-md my-2 border border-[var(--border-primary)]">` : ''}
                             <div class="content-text"></div>
                         </div>
                     </div>`;
@@ -888,7 +944,6 @@
                     contentContainer.innerHTML = markdownConverter.makeHtml(text);
                     processCodeBlocks(contentContainer);
                 } else {
-                    // For user, just set text content
                     contentContainer.textContent = text;
                 }
             }
@@ -909,12 +964,9 @@
         }
 
         // --- Utility Functions ---
-
-        // --- MODIFIED: showTypingIndicator function ---
         function showTypingIndicator() {
             const indicator = document.createElement("div");
             indicator.id = "typing-indicator";
-            // Add fade-in animation
             indicator.classList.add('message-appear');
             indicator.innerHTML = `
                 <div class="flex items-start gap-3 max-w-3xl mx-auto">
@@ -1063,7 +1115,7 @@
 
             setTimeout(() => {
                 dom.splashScreen.classList.add('hidden');
-            }, 2000);
+            }, 1500);
 
             console.log("Arivu AI Chat v5 is ready.");
         }
