@@ -660,7 +660,8 @@
         const apiKey = "AIzaSyDicsJgqwB9cbCYEU6cd3fj6Yd6ej50Myk";
 
         // --- CHANGE 1: Switched to the stable 'gemini-pro' text model ---
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
+        const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent?key=${apiKey}`;
+
 
         const markdownConverter = new showdown.Converter({ tables: true, strikethrough: true, simplifiedAutoLink: true });
 
