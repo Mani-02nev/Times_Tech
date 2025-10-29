@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>CodeLingo — Duolingo for Coding</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Poppins:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Poppins:wght@500&display=swap"
+    rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
@@ -12,294 +14,316 @@
       background: radial-gradient(ellipse at top left, #212338 80%, #10111a 100%);
       min-height: 100vh;
     }
+
     .glass {
       background: rgba(34, 39, 60, 0.85);
-      border: 1px solid rgba(130,180,255, 0.13);
+      border: 1px solid rgba(130, 180, 255, 0.13);
       backdrop-filter: blur(24px);
-      box-shadow: 0 6px 32px 0 rgba(31,38,135,0.19);
+      box-shadow: 0 6px 32px 0 rgba(31, 38, 135, 0.19);
     }
+
     .hover-glass:hover {
       background: rgba(52, 61, 94, 0.87);
       transition: background 0.18s;
       transform: scale(1.035);
       z-index: 5;
     }
-    ::selection { background: #6366F1; color: #fff; }
-    input, textarea {
-      background: rgba(24,30,44,0.7)!important;
+
+    ::selection {
+      background: #6366F1;
+      color: #fff;
+    }
+
+    input,
+    textarea {
+      background: rgba(24, 30, 44, 0.7) !important;
       border: 1.5px solid #334155;
     }
-    .fade { transition: all 0.3s;}
+
+    .fade {
+      transition: all 0.3s;
+    }
+
     .pulse {
       animation: pulse 1.2s infinite;
     }
+
     @keyframes pulse {
-      0% {box-shadow: 0 0 0 0 rgba(16,185,129,0.4);}
-      70% {box-shadow: 0 0 0 10px rgba(16,185,129,0);}
-      100% {box-shadow: 0 0 0 0 rgba(16,185,129,0);}
+      0% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+      }
     }
   </style>
 </head>
+
 <body class="min-h-screen">
-<div id="app"></div>
+  <div id="app"></div>
 
-<script>
-/* ========= APP DATA ========= */
+  <script>
+    /* ========= APP DATA ========= */
 
-const LANGUAGES = [
-  {
-    id: "python",
-    name: "Python",
-    emoji: "🐍",
-    color: "emerald",
-    desc: "Beginner-friendly and powerful, popular for AI, web, scripts.",
-    path: [
-      {name:"Basics",emoji:"🔹"},
-      {name:"Variables",emoji:"💾"},
-      {name:"Data Types",emoji:"📦"},
-      {name:"Loops",emoji:"🔁"},
-      {name:"Functions",emoji:"🧩"},
-      {name:"Lists",emoji:"📝"},
-      {name:"Mini Project",emoji:"🖥️"},
-    ]
-  },
-  {
-    id: "c",
-    name: "C",
-    emoji: "🔧",
-    color: "indigo",
-    desc: "Foundational and low-level, learn the core of computer science.",
-    path: [
-      {name:"Basics",emoji:"🔹"},
-      {name:"Variables",emoji:"💾"},
-      {name:"Operators",emoji:"➕"},
-      {name:"Loops",emoji:"🔁"},
-      {name:"Functions",emoji:"🧩"},
-      {name:"Arrays",emoji:"📝"},
-      {name:"Mini Project",emoji:"🖥️"},
-    ]
-  },
-  {
-    id: "cpp",
-    name: "C++",
-    emoji: "🐯",
-    color: "sky",
-    desc: "Supercharge C with OOP, used in games, systems & more.",
-    path: [
-      {name:"Basics",emoji:"🔹"},
-      {name:"Variables",emoji:"💾"},
-      {name:"Data Types",emoji:"📦"},
-      {name:"Loops",emoji:"🔁"},
-      {name:"Functions",emoji:"🧩"},
-      {name:"Vectors",emoji:"📝"},
-      {name:"Mini Project",emoji:"🖥️"},
-    ]
-  },
-  {
-    id: "java",
-    name: "Java",
-    emoji: "☕",
-    color: "orange",
-    desc: "OOP giant, Android & enterprise favorite.",
-    path: [
-      {name:"Basics",emoji:"🔹"},
-      {name:"Variables",emoji:"💾"},
-      {name:"Data Types",emoji:"📦"},
-      {name:"Loops",emoji:"🔁"},
-      {name:"Methods",emoji:"🧩"},
-      {name:"Arrays",emoji:"📝"},
-      {name:"Mini Project",emoji:"🖥️"},
-    ]
-  },
-  {
-    id: "javascript",
-    name: "JavaScript",
-    emoji: "✨",
-    color: "yellow",
-    desc: "Runs the web! Make interactive sites and much more.",
-    path: [
-      {name:"Basics",emoji:"🔹"},
-      {name:"Variables",emoji:"💾"},
-      {name:"Data Types",emoji:"📦"},
-      {name:"Loops",emoji:"🔁"},
-      {name:"Functions",emoji:"🧩"},
-      {name:"Arrays",emoji:"📝"},
-      {name:"Mini Project",emoji:"🖥️"},
-    ]
-  },
-  {
-    id: "html",
-    name: "HTML",
-    emoji: "🌐",
-    color: "pink",
-    desc: "Markup of the web. Build pages, layouts, and content.",
-    path: [
-      {name:"Basics",emoji:"🔹"},
-      {name:"Tags",emoji:"🏷️"},
-      {name:"Attributes",emoji:"🔖"},
-      {name:"Links",emoji:"🔗"},
-      {name:"Images",emoji:"🖼️"},
-      {name:"Forms",emoji:"✍️"},
-      {name:"Mini Project",emoji:"🖥️"},
-    ]
-  }
-];
-
-// Example lesson data for "Python / Basics"
-const LESSONS = {
-  python: {
-    Basics: [
-      // Intro card
+    const LANGUAGES = [
       {
-        type: "info",
-        text: "Variables store data in memory. Let's start learning how to use them in Python! 🚀"
-      },
-      // Q1: multiple choice
-      {
-        type: "mcq",
-        text: "What is the correct way to create a variable in Python?",
-        choices: [
-          {text: "x = 10", correct: true},
-          {text: "int x = 10"},
-          {text: "x <- 10"}
-        ]
-      },
-      // Q2: fill the blank
-      {
-        type: "fill",
-        text: "Fill the blank:<br><span class='font-mono'>name = _____<br>print(name)</span>",
-        answer: "Mani"
-      },
-      // Q3: predict output
-      {
-        type: "output",
-        text: "What is the output of this code?<br><span class='font-mono'>a = 5<br>b = 10<br>print(a + b)</span>",
-        answer: "15"
-      },
-      // Q4: debug
-      {
-        type: "debug",
-        text: "Find the error:<br><span class='font-mono'>x = 10<br>print x</span>",
-        answer: "Missing parentheses"
-      },
-      // Q5: code snippet
-      {
-        type: "code",
-        text: "Write a Python program to print your name.",
-        hint: "Use print('your name')",
-        answer: "print('Mani')" // This is mock, accept any print
-      }
-    ],
-    Variables: [
-      {
-        type: "info",
-        text: "Python variable names can contain letters, numbers, and underscores, but must not start with a digit."
-      },
-      {
-        type: "mcq",
-        text: "Which is a valid Python variable name?",
-        choices: [
-          {text: "_user_count", correct: true},
-          {text: "2total"},
-          {text: "class"}
+        id: "python",
+        name: "Python",
+        emoji: "🐍",
+        color: "emerald",
+        desc: "Beginner-friendly and powerful, popular for AI, web, scripts.",
+        path: [
+          { name: "Basics", emoji: "🔹" },
+          { name: "Variables", emoji: "💾" },
+          { name: "Data Types", emoji: "📦" },
+          { name: "Loops", emoji: "🔁" },
+          { name: "Functions", emoji: "🧩" },
+          { name: "Lists", emoji: "📝" },
+          { name: "Mini Project", emoji: "🖥️" },
         ]
       },
       {
-        type: "fill",
-        text: "Fill in:<br><span class='font-mono'>age = _____</span>",
-        answer: "21"
+        id: "c",
+        name: "C",
+        emoji: "🔧",
+        color: "indigo",
+        desc: "Foundational and low-level, learn the core of computer science.",
+        path: [
+          { name: "Basics", emoji: "🔹" },
+          { name: "Variables", emoji: "💾" },
+          { name: "Operators", emoji: "➕" },
+          { name: "Loops", emoji: "🔁" },
+          { name: "Functions", emoji: "🧩" },
+          { name: "Arrays", emoji: "📝" },
+          { name: "Mini Project", emoji: "🖥️" },
+        ]
       },
       {
-        type: "output",
-        text: "What is the output?<br><span class='font-mono'>x = 3<br>y = '5'<br>print(x + int(y))</span>",
-        answer: "8"
+        id: "cpp",
+        name: "C++",
+        emoji: "🐯",
+        color: "sky",
+        desc: "Supercharge C with OOP, used in games, systems & more.",
+        path: [
+          { name: "Basics", emoji: "🔹" },
+          { name: "Variables", emoji: "💾" },
+          { name: "Data Types", emoji: "📦" },
+          { name: "Loops", emoji: "🔁" },
+          { name: "Functions", emoji: "🧩" },
+          { name: "Vectors", emoji: "📝" },
+          { name: "Mini Project", emoji: "🖥️" },
+        ]
       },
       {
-        type: "debug",
-        text: "Find the bug:<br><span class='font-mono'>num = '7'<br>print(num + 1)</span>",
-        answer: "Need int conversion / TypeError"
+        id: "java",
+        name: "Java",
+        emoji: "☕",
+        color: "orange",
+        desc: "OOP giant, Android & enterprise favorite.",
+        path: [
+          { name: "Basics", emoji: "🔹" },
+          { name: "Variables", emoji: "💾" },
+          { name: "Data Types", emoji: "📦" },
+          { name: "Loops", emoji: "🔁" },
+          { name: "Methods", emoji: "🧩" },
+          { name: "Arrays", emoji: "📝" },
+          { name: "Mini Project", emoji: "🖥️" },
+        ]
       },
       {
-        type: "code",
-        text: "Write code to store your college name in a variable and print it.",
-        hint: "Use <span class='font-mono'>college = ...</span>, <span class='font-mono'>print(...)</span>",
-        answer: "any"
+        id: "javascript",
+        name: "JavaScript",
+        emoji: "✨",
+        color: "yellow",
+        desc: "Runs the web! Make interactive sites and much more.",
+        path: [
+          { name: "Basics", emoji: "🔹" },
+          { name: "Variables", emoji: "💾" },
+          { name: "Data Types", emoji: "📦" },
+          { name: "Loops", emoji: "🔁" },
+          { name: "Functions", emoji: "🧩" },
+          { name: "Arrays", emoji: "📝" },
+          { name: "Mini Project", emoji: "🖥️" },
+        ]
+      },
+      {
+        id: "html",
+        name: "HTML",
+        emoji: "🌐",
+        color: "pink",
+        desc: "Markup of the web. Build pages, layouts, and content.",
+        path: [
+          { name: "Basics", emoji: "🔹" },
+          { name: "Tags", emoji: "🏷️" },
+          { name: "Attributes", emoji: "🔖" },
+          { name: "Links", emoji: "🔗" },
+          { name: "Images", emoji: "🖼️" },
+          { name: "Forms", emoji: "✍️" },
+          { name: "Mini Project", emoji: "🖥️" },
+        ]
       }
-    ]
-    // ... add more lessons for each topic
-  },
+    ];
 
-  // ... add placeholder lessons for all other languages/skills
-};
+    // Example lesson data for "Python / Basics"
+    const LESSONS = {
+      python: {
+        Basics: [
+          // Intro card
+          {
+            type: "info",
+            text: "Variables store data in memory. Let's start learning how to use them in Python! 🚀"
+          },
+          // Q1: multiple choice
+          {
+            type: "mcq",
+            text: "What is the correct way to create a variable in Python?",
+            choices: [
+              { text: "x = 10", correct: true },
+              { text: "int x = 10" },
+              { text: "x <- 10" }
+            ]
+          },
+          // Q2: fill the blank
+          {
+            type: "fill",
+            text: "Fill the blank:<br><span class='font-mono'>name = _____<br>print(name)</span>",
+            answer: "Mani"
+          },
+          // Q3: predict output
+          {
+            type: "output",
+            text: "What is the output of this code?<br><span class='font-mono'>a = 5<br>b = 10<br>print(a + b)</span>",
+            answer: "15"
+          },
+          // Q4: debug
+          {
+            type: "debug",
+            text: "Find the error:<br><span class='font-mono'>x = 10<br>print x</span>",
+            answer: "Missing parentheses"
+          },
+          // Q5: code snippet
+          {
+            type: "code",
+            text: "Write a Python program to print your name.",
+            hint: "Use print('your name')",
+            answer: "print('Mani')" // This is mock, accept any print
+          }
+        ],
+        Variables: [
+          {
+            type: "info",
+            text: "Python variable names can contain letters, numbers, and underscores, but must not start with a digit."
+          },
+          {
+            type: "mcq",
+            text: "Which is a valid Python variable name?",
+            choices: [
+              { text: "_user_count", correct: true },
+              { text: "2total" },
+              { text: "class" }
+            ]
+          },
+          {
+            type: "fill",
+            text: "Fill in:<br><span class='font-mono'>age = _____</span>",
+            answer: "21"
+          },
+          {
+            type: "output",
+            text: "What is the output?<br><span class='font-mono'>x = 3<br>y = '5'<br>print(x + int(y))</span>",
+            answer: "8"
+          },
+          {
+            type: "debug",
+            text: "Find the bug:<br><span class='font-mono'>num = '7'<br>print(num + 1)</span>",
+            answer: "Need int conversion / TypeError"
+          },
+          {
+            type: "code",
+            text: "Write code to store your college name in a variable and print it.",
+            hint: "Use <span class='font-mono'>college = ...</span>, <span class='font-mono'>print(...)</span>",
+            answer: "any"
+          }
+        ]
+        // ... add more lessons for each topic
+      },
+
+      // ... add placeholder lessons for all other languages/skills
+    };
 
 
-/* ========== UTILITY/FUNCTIONS ========= */
+    /* ========== UTILITY/FUNCTIONS ========= */
 
-// Get/set localStorage with fallback
-function saveState(key, value) {
-  localStorage.setItem("codelingo-" + key, JSON.stringify(value));
-}
-function loadState(key, dflt) {
-  const v = localStorage.getItem("codelingo-" + key);
-  return v !== null ? JSON.parse(v) : dflt;
-}
+    // Get/set localStorage with fallback
+    function saveState(key, value) {
+      localStorage.setItem("codelingo-" + key, JSON.stringify(value));
+    }
+    function loadState(key, dflt) {
+      const v = localStorage.getItem("codelingo-" + key);
+      return v !== null ? JSON.parse(v) : dflt;
+    }
 
-// Simple XP/level/achievement calc helpers
-function xpForLevel(lvl) { return lvl * lvl * 35 + 40; }
-function calcLevel(xp) {
-  let lvl = 1, cap = 0;
-  while (xp >= xpForLevel(lvl)) {
-    xp -= xpForLevel(lvl);
-    lvl++;
-  }
-  return {level: lvl, curr: xp, next: xpForLevel(lvl)};
-}
-function todayStr() {
-  const d = new Date();
-  return d.toISOString().slice(0,10);
-}
-function randomItem(arr) {
-  return arr[Math.floor(Math.random()*arr.length)];
-}
-// MOTIVATION quotes
-const MESSAGES = [
-  "Keep going, coder!",
-  "You leveled up, nice!",
-  "Awesome job! 🔥",
-  "Small steps, great future.",
-  "Your streak is legendary.",
-  "Practice makes perfect!",
-  "Great work, keep learning!",
-  "🎉 Challenge completed!",
-  "Another badge earned!",
-  "Streak +1! Amazing!"
-];
-const BADGES = [
-  {id:"first", text:"First lesson!", emoji:"🎈"},
-  {id:"streak3", text:"3-day streak", emoji:"🔥"},
-  {id:"xp100", text:"100 XP", emoji:"🏅"},
-  {id:"tenlessons", text:"10 Lessons!", emoji:"🚀"},
-];
+    // Simple XP/level/achievement calc helpers
+    function xpForLevel(lvl) { return lvl * lvl * 35 + 40; }
+    function calcLevel(xp) {
+      let lvl = 1, cap = 0;
+      while (xp >= xpForLevel(lvl)) {
+        xp -= xpForLevel(lvl);
+        lvl++;
+      }
+      return { level: lvl, curr: xp, next: xpForLevel(lvl) };
+    }
+    function todayStr() {
+      const d = new Date();
+      return d.toISOString().slice(0, 10);
+    }
+    function randomItem(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+    // MOTIVATION quotes
+    const MESSAGES = [
+      "Keep going, coder!",
+      "You leveled up, nice!",
+      "Awesome job! 🔥",
+      "Small steps, great future.",
+      "Your streak is legendary.",
+      "Practice makes perfect!",
+      "Great work, keep learning!",
+      "🎉 Challenge completed!",
+      "Another badge earned!",
+      "Streak +1! Amazing!"
+    ];
+    const BADGES = [
+      { id: "first", text: "First lesson!", emoji: "🎈" },
+      { id: "streak3", text: "3-day streak", emoji: "🔥" },
+      { id: "xp100", text: "100 XP", emoji: "🏅" },
+      { id: "tenlessons", text: "10 Lessons!", emoji: "🚀" },
+    ];
 
-/* ========== APP STATE ========= */
+    /* ========== APP STATE ========= */
 
-let state = {
-  page: "loading", // "lang", "dashboard", "path", "lesson", "review"
-  selected: loadState("selected", null),
-  xp: loadState("xp", 0),
-  streak: loadState("streak", 0),
-  lastDay: loadState("lastDay", null),
-  badges: loadState("badges", []),
-  progress: loadState("progress", {}), // {python: {1:true, ...}}
-  lesson: null,    // {lang, skill, idx, answers:[], review:false}
-  msg: "",
-};
+    let state = {
+      page: "loading", // "lang", "dashboard", "path", "lesson", "review"
+      selected: loadState("selected", null),
+      xp: loadState("xp", 0),
+      streak: loadState("streak", 0),
+      lastDay: loadState("lastDay", null),
+      badges: loadState("badges", []),
+      progress: loadState("progress", {}), // {python: {1:true, ...}}
+      lesson: null,    // {lang, skill, idx, answers:[], review:false}
+      msg: "",
+    };
 
-/* ========== RENDER ========= */
+    /* ========== RENDER ========= */
 
-function appRender() {
-  // Container
-  document.getElementById("app").innerHTML = `
+    function appRender() {
+      // Container
+      document.getElementById("app").innerHTML = `
     <div class="flex flex-col min-h-screen w-full">
       <header class="flex items-center justify-between px-4 py-3 glass w-full shadow-md bg-opacity-40"
         style="border-radius:0 0 36px 36px;">
@@ -318,7 +342,7 @@ function appRender() {
             <span class="text-xs text-zinc-400 font-mono">XP</span>
             <span class="font-bold text-emerald-400">${state.xp}</span>
           </div>
-          <span class="pl-2 font-bold text-indigo-400">${state.selected ? LANGUAGES.find(l=>l.id==state.selected)?.emoji : ''}</span>
+          <span class="pl-2 font-bold text-indigo-400">${state.selected ? LANGUAGES.find(l => l.id == state.selected)?.emoji : ''}</span>
         </div>
       </header>
 
@@ -334,20 +358,20 @@ function appRender() {
       </main>
 
       <footer class="pt-2 pb-4 opacity-90 text-xs flex justify-center text-zinc-500 select-none">
-        Built with 💜 for coders • <span class='mx-2'>Duolingo for Programming</span> • CodeLingo 2025
+        Built with  for coders MANI </span> • CodeLingo 2025
       </footer>
     </div>
   `;
-}
+    }
 
-// ---- PAGE: Language selection ----
-function langPage() {
-  return `
+    // ---- PAGE: Language selection ----
+    function langPage() {
+      return `
     <div class="w-full max-w-4xl mx-auto mt-8">
       <h1 class="text-3xl md:text-4xl font-extrabold text-white mb-1">Choose a Language</h1>
       <div class="mb-6 text-zinc-300">Make coding fun, one language at a time.</div>
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        ${LANGUAGES.map(l=>`
+        ${LANGUAGES.map(l => `
           <div onclick="selectLang('${l.id}')" class="cursor-pointer glass hover-glass rounded-3xl flex flex-col items-center transition-all p-6 mb-3 shadow-md border border-slate-700">
             <span class="text-4xl mb-2">${l.emoji}</span>
             <div class="font-bold text-lg pb-1 text-${l.color}-400">${l.name}</div>
@@ -360,30 +384,30 @@ function langPage() {
       </div>
     </div>
   `;
-}
+    }
 
-window.selectLang = function(id) {
-  state.selected = id;
-  saveState("selected", id);
-  goto('dashboard');
-};
+    window.selectLang = function (id) {
+      state.selected = id;
+      saveState("selected", id);
+      goto('dashboard');
+    };
 
-// ---- PAGE: Dashboard ----
-function dashboardPage() {
-  if (!state.selected) return langPage();
-  const lang = LANGUAGES.find(l=>l.id==state.selected);
-  const {level,curr,next} = calcLevel(state.xp);
-  const path = lang.path;
+    // ---- PAGE: Dashboard ----
+    function dashboardPage() {
+      if (!state.selected) return langPage();
+      const lang = LANGUAGES.find(l => l.id == state.selected);
+      const { level, curr, next } = calcLevel(state.xp);
+      const path = lang.path;
 
-  // Progress
-  const comp = (state.progress[state.selected]||[]);
-  const skillsDone = Object.values(comp).filter(Boolean).length;
-  // Streak
-  let streakShow = state.streak;
-  // Achievements
-  let badgesList = state.badges.map(bid=>BADGES.find(b=>b.id==bid)).filter(Boolean);
+      // Progress
+      const comp = (state.progress[state.selected] || []);
+      const skillsDone = Object.values(comp).filter(Boolean).length;
+      // Streak
+      let streakShow = state.streak;
+      // Achievements
+      let badgesList = state.badges.map(bid => BADGES.find(b => b.id == bid)).filter(Boolean);
 
-  return `
+      return `
     <div class="w-full max-w-xl mx-auto mt-10">
       <div class="glass rounded-3xl flex flex-col gap-3 p-6 shadow-xl items-center">
         <div class="flex items-center gap-3">
@@ -395,7 +419,7 @@ function dashboardPage() {
             <span>XP:</span>
             <div class="flex-1 bg-zinc-800 rounded-xl h-4 overflow-hidden">
               <div class="h-4 rounded-xl bg-gradient-to-r from-emerald-400 via-indigo-400 to-indigo-700 transition-all"
-                style="width:${Math.max(7,Math.round(curr/next*100))}%"></div>
+                style="width:${Math.max(7, Math.round(curr / next * 100))}%"></div>
             </div>
             <span class="font-bold text-emerald-300 ml-2">${curr} / ${next}</span>
           </div>
@@ -423,7 +447,7 @@ function dashboardPage() {
       <div class="mt-6 text-white text-xl font-bold underline underline-offset-2">Achievements</div>
       <div class="flex gap-3 mt-3 mb-5 flex-wrap">
         ${badgesList.length == 0 ? "<div class='text-zinc-400'>No badges yet.</div>"
-          : badgesList.map(b=>`
+          : badgesList.map(b => `
             <div class="glass rounded-2xl px-4 py-2 flex items-center gap-1">
               <span class="text-2xl">${b.emoji}</span>
               <span class="font-semibold">${b.text}</span>
@@ -439,15 +463,15 @@ function dashboardPage() {
       <div class="mt-6 text-center text-zinc-400 text-xs"><span class="opacity-80">🧑‍💻 Future: Google Login, Judge0 code, Leaderboards…</span></div>
     </div>
   `;
-}
+    }
 
-// ---- PAGE: Path (Skill Tree) ----
-function pathPage() {
-  if (!state.selected) return langPage();
-  const lang = LANGUAGES.find(l=>l.id==state.selected);
-  const path = lang.path;
-  const progress = state.progress[state.selected]||{};
-  return `
+    // ---- PAGE: Path (Skill Tree) ----
+    function pathPage() {
+      if (!state.selected) return langPage();
+      const lang = LANGUAGES.find(l => l.id == state.selected);
+      const path = lang.path;
+      const progress = state.progress[state.selected] || {};
+      return `
     <div class="w-full max-w-3xl mx-auto mt-10">
       <div class="glass rounded-3xl px-4 pt-8 pb-7 shadow flex flex-col items-center min-h-[400px] relative">
         <div class="mx-auto w-fit text-2xl font-bold text-white mb-2">${lang.emoji} ${lang.name} — Skill Path</div>
@@ -455,10 +479,10 @@ function pathPage() {
         <div class="flex flex-col items-center gap-4 mt-2">
           <div class="flex flex-col gap-6 relative">
             ${path.map((s, i) => {
-              let unlocked = i==0 || !!progress[i];
-              let done = !!progress[i];
-              let locked = !(unlocked || done || (i>0 && !!progress[i-1]));
-              return `
+        let unlocked = i == 0 || !!progress[i];
+        let done = !!progress[i];
+        let locked = !(unlocked || done || (i > 0 && !!progress[i - 1]));
+        return `
                 <div class="flex items-center gap-5 relative group">
                   <div
                     class="rounded-full w-14 h-14 flex items-center justify-center shadow glass border-2
@@ -473,17 +497,17 @@ function pathPage() {
                     ${s.name}
                   </span>
                   ${done ?
-                    `<span class="ml-2 text-green-400 text-lg animate-bounce">✔️</span>` : locked ?
-                    `<span class="ml-2 text-zinc-500 text-base">🔒</span>` : ""
-                  }
+            `<span class="ml-2 text-green-400 text-lg animate-bounce">✔️</span>` : locked ?
+              `<span class="ml-2 text-zinc-500 text-base">🔒</span>` : ""
+          }
                 </div>
-                ${i!=path.length-1 ?
-                  `<div class="absolute left-6 top-full h-8 w-1 border-l-4
-                      ${done||progress[i+1] ? 'border-emerald-400' : 'border-zinc-800'}
+                ${i != path.length - 1 ?
+            `<div class="absolute left-6 top-full h-8 w-1 border-l-4
+                      ${done || progress[i + 1] ? 'border-emerald-400' : 'border-zinc-800'}
                       rounded-full"></div>
                   ` : ""}
               `;
-            }).join('')}
+      }).join('')}
           </div>
         </div>
       </div>
@@ -493,52 +517,52 @@ function pathPage() {
       </div>
     </div>
   `;
-}
+    }
 
-window.beginLesson = function(idx) {
-  // Start lesson for current language, skill idx
-  const lang = state.selected;
-  const skill = LANGUAGES.find(l=>l.id==lang).path[idx].name;
-  state.lesson = {lang, idx, skill, step:0, answers:[], review:false};
-  goto('lesson');
-};
+    window.beginLesson = function (idx) {
+      // Start lesson for current language, skill idx
+      const lang = state.selected;
+      const skill = LANGUAGES.find(l => l.id == lang).path[idx].name;
+      state.lesson = { lang, idx, skill, step: 0, answers: [], review: false };
+      goto('lesson');
+    };
 
-// ---- PAGE: Lesson (5 exercises) ----
-function lessonPage() {
-  const {lang, idx, skill, step, answers=[], review=false} = state.lesson||{};
-  const langObj = LANGUAGES.find(l=>l.id==lang);
-  if (!langObj) return "<div class='text-xl text-red-500'>Error: No lesson loaded.</div>";
-  const skillName = skill;
-  // Get lesson data, fallback to Python/Basics demo
-  const lessonQs = LESSONS[lang]?.[skillName] || LESSONS.python.Basics;
-  const q = lessonQs[step];
-  const total = lessonQs.length;
-  // XP reward
-  const XP = review ? 0 : 15;
-  // Progress bar
-  const progressBar = `
+    // ---- PAGE: Lesson (5 exercises) ----
+    function lessonPage() {
+      const { lang, idx, skill, step, answers = [], review = false } = state.lesson || {};
+      const langObj = LANGUAGES.find(l => l.id == lang);
+      if (!langObj) return "<div class='text-xl text-red-500'>Error: No lesson loaded.</div>";
+      const skillName = skill;
+      // Get lesson data, fallback to Python/Basics demo
+      const lessonQs = LESSONS[lang]?.[skillName] || LESSONS.python.Basics;
+      const q = lessonQs[step];
+      const total = lessonQs.length;
+      // XP reward
+      const XP = review ? 0 : 15;
+      // Progress bar
+      const progressBar = `
     <div class="mb-2 w-full px-2">
       <div class="h-2 bg-zinc-800 rounded-full relative overflow-hidden">
         <div class="h-2 rounded-full bg-gradient-to-r from-indigo-500 to-emerald-400 transition-all"
-        style="width:${Math.round((step/total)*100)}%"></div>
+        style="width:${Math.round((step / total) * 100)}%"></div>
       </div>
-      <div class="text-xs text-zinc-300 mt-1 text-center">${Math.min(step+1, total)}/${total} complete</div>
+      <div class="text-xs text-zinc-300 mt-1 text-center">${Math.min(step + 1, total)}/${total} complete</div>
     </div>
   `;
-  // NEXT/Submit button
-  const showQ = step < total ? renderQ(q, answers[step]) : "";
-  const btn =
-    step < total-1 ? "" :
-      `<button class="bg-emerald-600 shadow text-white px-6 py-2 mt-4 rounded-xl font-semibold text-lg
+      // NEXT/Submit button
+      const showQ = step < total ? renderQ(q, answers[step]) : "";
+      const btn =
+        step < total - 1 ? "" :
+          `<button class="bg-emerald-600 shadow text-white px-6 py-2 mt-4 rounded-xl font-semibold text-lg
         hover:bg-emerald-700" onclick="nextLesson()">
         Finish Lesson
       </button>`;
 
-  // Upon completion
-  if (step >= total) {
-    // Award XP, level up, streak, unlock next, badges
-    if (!review) doAwardLesson(lang, idx, XP);
-    return `
+      // Upon completion
+      if (step >= total) {
+        // Award XP, level up, streak, unlock next, badges
+        if (!review) doAwardLesson(lang, idx, XP);
+        return `
       <div class="max-w-lg mx-auto mt-6 glass rounded-3xl shadow-lg p-8 flex flex-col items-center">
         <span class="text-5xl mb-3">🎉</span>
         <div class="text-2xl mb-3 font-bold text-emerald-300">Lesson Complete!</div>
@@ -547,16 +571,16 @@ function lessonPage() {
           ${randomItem(MESSAGES)}
         </div>
         ${newBadgesUI()}
-        <div class="text-zinc-300 text-sm mb-4">You unlocked "<span class='underline text-indigo-300 font-semibold'>${langObj.path[idx+1]?.name||"Finished!"}</span>".</div>
+        <div class="text-zinc-300 text-sm mb-4">You unlocked "<span class='underline text-indigo-300 font-semibold'>${langObj.path[idx + 1]?.name || "Finished!"}</span>".</div>
         <button class="bg-indigo-600 text-white px-6 py-2 rounded-xl font-bold mt-3 hover:bg-indigo-700"
           onclick="goto('dashboard')">Back to Dashboard</button>
         <button class="border border-emerald-500 text-emerald-400 px-4 py-1 rounded-xl mt-2 ml-2 font-semibold hover:bg-emerald-700/30"
           onclick="goto('path')">Skill Path</button>
       </div>
     `;
-  }
+      }
 
-  return `
+      return `
     <div class="w-full max-w-lg mx-auto mt-7 glass rounded-3xl shadow-lg pb-8 pt-4 px-6 fade">
       <div class="text-base mb-1 text-indigo-300 font-bold">${langObj.emoji} ${langObj.name} ▶ <span class="text-emerald-300">${skillName}</span></div>
       ${progressBar}
@@ -565,180 +589,180 @@ function lessonPage() {
         <div class="flex justify-center">${btn}</div>
       </form>
     </div>
-    <div class="mt-6 text-zinc-200 flex justify-center">${state.msg||""}</div>
+    <div class="mt-6 text-zinc-200 flex justify-center">${state.msg || ""}</div>
   `;
-}
+    }
 
-// Render single question/exercise
-function renderQ(q, prevAns) {
-  if (!q) return "";
-  if (q.type=="info") {
-    return `
+    // Render single question/exercise
+    function renderQ(q, prevAns) {
+      if (!q) return "";
+      if (q.type == "info") {
+        return `
       <div class='my-7 text-xl text-white font-bold text-center'>${q.text}</div>
       <button class="bg-emerald-600 text-white px-6 py-2 mt-4 rounded-xl font-bold hover:bg-emerald-700"
         type="submit">Start</button>
     `;
-  }
-  if (q.type=="mcq") {
-    return `
+      }
+      if (q.type == "mcq") {
+        return `
       <div class="mb-4 font-semibold text-lg">${q.text}</div>
       ${q.choices.map((c, i) => `
         <label class="flex items-center gap-2 mb-3 cursor-pointer glass hover-glass px-3 py-2 rounded-xl border border-transparent hover:border-emerald-400">
-          <input required class="accent-emerald-500 scale-125" type="radio" name="mcq" value="${i}" ${prevAns==i?"checked":""}/>
+          <input required class="accent-emerald-500 scale-125" type="radio" name="mcq" value="${i}" ${prevAns == i ? "checked" : ""}/>
           <span>${c.text}</span>
         </label>
       `).join('')}
       <button class="bg-emerald-500 text-white px-5 py-1 rounded-xl mt-3 font-semibold" type="submit">Submit</button>
     `;
-  }
-  if (q.type=="fill") {
-    return `
+      }
+      if (q.type == "fill") {
+        return `
       <div class="mb-4 font-semibold text-lg">${q.text}</div>
-      <input class="block w-full p-2 text-lg rounded-xl mb-3" name="fill" placeholder="Type answer here..." required value="${prevAns||''}" />
+      <input class="block w-full p-2 text-lg rounded-xl mb-3" name="fill" placeholder="Type answer here..." required value="${prevAns || ''}" />
       <button class="bg-emerald-500 text-white px-5 py-1 rounded-xl mt-2 font-semibold" type="submit">Submit</button>
     `;
-  }
-  if (q.type=="output") {
-    return `
+      }
+      if (q.type == "output") {
+        return `
       <div class="mb-4 font-semibold text-lg">${q.text}</div>
-      <input class="block w-full p-2 text-lg rounded-xl mb-3" name="output" placeholder="Type output" required value="${prevAns||''}" />
+      <input class="block w-full p-2 text-lg rounded-xl mb-3" name="output" placeholder="Type output" required value="${prevAns || ''}" />
       <button class="bg-emerald-500 text-white px-5 py-1 rounded-xl mt-2 font-semibold" type="submit">Submit</button>
     `;
-  }
-  if (q.type=="debug") {
-    return `
+      }
+      if (q.type == "debug") {
+        return `
       <div class="mb-4 font-semibold text-lg">${q.text}</div>
-      <input class="block w-full p-2 text-lg rounded-xl mb-3" name="debug" placeholder="Describe the error" required value="${prevAns||''}" />
+      <input class="block w-full p-2 text-lg rounded-xl mb-3" name="debug" placeholder="Describe the error" required value="${prevAns || ''}" />
       <button class="bg-emerald-500 text-white px-5 py-1 rounded-xl mt-2 font-semibold" type="submit">Submit</button>
     `;
-  }
-  if (q.type=="code") {
-    return `
+      }
+      if (q.type == "code") {
+        return `
       <div class="mb-3 font-semibold text-lg">${q.text}</div>
-      <textarea name="code" class="w-full min-h-[70px] p-2 rounded-xl mb-2 font-mono" required placeholder="Write your code here...">${prevAns||''}</textarea>
-      <div class="mb-2 text-xs text-zinc-400">Hint: ${q.hint||""}</div>
+      <textarea name="code" class="w-full min-h-[70px] p-2 rounded-xl mb-2 font-mono" required placeholder="Write your code here...">${prevAns || ''}</textarea>
+      <div class="mb-2 text-xs text-zinc-400">Hint: ${q.hint || ""}</div>
       <button class="bg-indigo-500 text-white px-7 py-1 rounded-xl mt-1 font-bold" type="submit">Mock Run</button>
     `;
-  }
-  return `<div class="text-lg text-red-400">Unknown Q type.</div>`;
-}
-
-window.submitQ = function(ev) {
-  ev.preventDefault();
-  // Current step
-  const {lang,idx,skill,step,answers=[],review=false} = state.lesson;
-  const langObj = LANGUAGES.find(l=>l.id==lang);
-  const skillName = skill;
-  const lessonQs = LESSONS[lang]?.[skillName] || LESSONS.python.Basics;
-  const q = lessonQs[step];
-  // Validate answer
-  let ans;
-  if (q.type=="mcq") {
-    const sel = ev.target.mcq.value;
-    ans = Number(sel);
-    const correct = q.choices.findIndex(c=>c.correct);
-    if (ans===correct) {
-      state.msg = "✅ Good job!";
-      state.lesson.answers[step]=ans;
-      setTimeout(()=>{ state.msg=""; state.lesson.step++; appRender(); },650);
-    } else {
-      state.msg = "❌ Oops! Try again.";
-      appRender();
+      }
+      return `<div class="text-lg text-red-400">Unknown Q type.</div>`;
     }
-    return;
-  }
-  if (q.type=="fill" || q.type=="output" || q.type=="debug") {
-    const val = (ev.target[q.type].value||"").trim();
-    ans = val;
-    // Case-insensitive
-    if ((val+"").toLowerCase() === (q.answer+"").toLowerCase() || (q.type=="debug" && val.match(/parenth|type/i))) {
-      state.msg = "✅ Correct!";
-      state.lesson.answers[step]=val;
-      setTimeout(()=>{ state.msg=""; state.lesson.step++; appRender(); },650);
-    } else {
-      state.msg = "❌ Try again!";
-      appRender();
+
+    window.submitQ = function (ev) {
+      ev.preventDefault();
+      // Current step
+      const { lang, idx, skill, step, answers = [], review = false } = state.lesson;
+      const langObj = LANGUAGES.find(l => l.id == lang);
+      const skillName = skill;
+      const lessonQs = LESSONS[lang]?.[skillName] || LESSONS.python.Basics;
+      const q = lessonQs[step];
+      // Validate answer
+      let ans;
+      if (q.type == "mcq") {
+        const sel = ev.target.mcq.value;
+        ans = Number(sel);
+        const correct = q.choices.findIndex(c => c.correct);
+        if (ans === correct) {
+          state.msg = "✅ Good job!";
+          state.lesson.answers[step] = ans;
+          setTimeout(() => { state.msg = ""; state.lesson.step++; appRender(); }, 650);
+        } else {
+          state.msg = "❌ Oops! Try again.";
+          appRender();
+        }
+        return;
+      }
+      if (q.type == "fill" || q.type == "output" || q.type == "debug") {
+        const val = (ev.target[q.type].value || "").trim();
+        ans = val;
+        // Case-insensitive
+        if ((val + "").toLowerCase() === (q.answer + "").toLowerCase() || (q.type == "debug" && val.match(/parenth|type/i))) {
+          state.msg = "✅ Correct!";
+          state.lesson.answers[step] = val;
+          setTimeout(() => { state.msg = ""; state.lesson.step++; appRender(); }, 650);
+        } else {
+          state.msg = "❌ Try again!";
+          appRender();
+        }
+        return;
+      }
+      if (q.type == "code") {
+        const sval = (ev.target.code.value || "").trim();
+        // Fake check (accept any print statement)
+        ans = sval;
+        if (!sval.match(/print/i)) {
+          state.msg = "❌ Remember to use print statement.";
+          appRender();
+          return;
+        }
+        state.msg = "<span class='font-mono text-emerald-200'>Running...</span>";
+        setTimeout(() => {
+          state.msg = "<span class='text-green-300 font-bold'>Output:<br></span><span class='bg-zinc-900 px-2 py-1 rounded font-mono text-emerald-300 shadow'>" + (sval.match(/['"](.+)['"]/) ? RegExp.$1 : "Mani") + "</span>";
+          state.lesson.answers[step] = sval;
+          setTimeout(() => { state.msg = ""; state.lesson.step++; appRender(); }, 950);
+        }, 990);
+        return;
+      }
+      if (q.type == "info") {
+        state.lesson.step++;
+        appRender();
+        return;
+      }
+    };
+
+    // Advance after lesson
+    window.nextLesson = function () {
+      goto('path');
+    };
+
+    function doAwardLesson(lang, idx, XP) {
+      // Save progress
+      if (!state.progress[lang]) state.progress[lang] = {};
+      state.progress[lang][idx] = true;
+      saveState("progress", state.progress);
+      // XP
+      state.xp += XP;
+      saveState("xp", state.xp);
+      // Level up message (handled on dashboard)
+      // Streak
+      let today = todayStr();
+      if (state.lastDay == today) {
+        // Already today, do nothing
+      } else if (state.lastDay && new Date(today) - new Date(state.lastDay) == 86400000) {
+        state.streak++;
+      } else {
+        state.streak = 1;
+      }
+      state.lastDay = today;
+      saveState("streak", state.streak);
+      saveState("lastDay", state.lastDay);
+      // Badges
+      checkBadges();
     }
-    return;
-  }
-  if (q.type=="code") {
-    const sval = (ev.target.code.value||"").trim();
-    // Fake check (accept any print statement)
-    ans = sval;
-    if (!sval.match(/print/i)) {
-      state.msg = "❌ Remember to use print statement.";
-      appRender();
-      return;
+
+    function checkBadges() {
+      const xp = state.xp;
+      let add = [];
+      if (!state.badges.includes("first")) add.push("first");
+      if (state.streak >= 3 && !state.badges.includes("streak3")) add.push("streak3");
+      if (xp >= 100 && !state.badges.includes("xp100")) add.push("xp100");
+      let numSkills = Object.values(state.progress?.[state.selected] || {}).filter(Boolean).length;
+      if (numSkills >= 10 && !state.badges.includes("tenlessons")) add.push("tenlessons");
+      if (add.length) {
+        state.badges = [...(state.badges || []), ...add];
+        saveState("badges", state.badges);
+      }
     }
-    state.msg = "<span class='font-mono text-emerald-200'>Running...</span>";
-    setTimeout(()=>{
-      state.msg = "<span class='text-green-300 font-bold'>Output:<br></span><span class='bg-zinc-900 px-2 py-1 rounded font-mono text-emerald-300 shadow'>"+(sval.match(/['"](.+)['"]/)?RegExp.$1:"Mani")+"</span>";
-      state.lesson.answers[step]=sval;
-      setTimeout(()=>{ state.msg=""; state.lesson.step++; appRender(); },950);
-    },990);
-    return;
-  }
-  if (q.type=="info") {
-    state.lesson.step++;
-    appRender();
-    return;
-  }
-};
 
-// Advance after lesson
-window.nextLesson = function() {
-  goto('path');
-};
-
-function doAwardLesson(lang, idx, XP) {
-  // Save progress
-  if (!state.progress[lang]) state.progress[lang]={};
-  state.progress[lang][idx]=true;
-  saveState("progress", state.progress);
-  // XP
-  state.xp += XP;
-  saveState("xp", state.xp);
-  // Level up message (handled on dashboard)
-  // Streak
-  let today = todayStr();
-  if (state.lastDay == today) {
-    // Already today, do nothing
-  } else if (state.lastDay && new Date(today) - new Date(state.lastDay) == 86400000) {
-    state.streak++;
-  } else {
-    state.streak = 1;
-  }
-  state.lastDay = today;
-  saveState("streak", state.streak);
-  saveState("lastDay", state.lastDay);
-  // Badges
-  checkBadges();
-}
-
-function checkBadges() {
-  const xp = state.xp;
-  let add = [];
-  if (!state.badges.includes("first")) add.push("first");
-  if (state.streak>=3 && !state.badges.includes("streak3")) add.push("streak3");
-  if (xp>=100 && !state.badges.includes("xp100")) add.push("xp100");
-  let numSkills = Object.values(state.progress?.[state.selected]||{}).filter(Boolean).length;
-  if (numSkills>=10 && !state.badges.includes("tenlessons")) add.push("tenlessons");
-  if (add.length) {
-    state.badges = [...(state.badges||[]), ...add];
-    saveState("badges", state.badges);
-  }
-}
-
-function newBadgesUI() {
-  let add = [];
-  if (!state.badges.includes("first")) add.push(BADGES[0]);
-  if (state.streak>=3 && !state.badges.includes("streak3")) add.push(BADGES[1]);
-  if (state.xp>=100 && !state.badges.includes("xp100")) add.push(BADGES[2]);
-  if (Object.values(state.progress?.[state.selected]||{}).filter(Boolean).length>=10 && !state.badges.includes("tenlessons")) add.push(BADGES[3]);
-  if (!add.length) return "";
-  return `
+    function newBadgesUI() {
+      let add = [];
+      if (!state.badges.includes("first")) add.push(BADGES[0]);
+      if (state.streak >= 3 && !state.badges.includes("streak3")) add.push(BADGES[1]);
+      if (state.xp >= 100 && !state.badges.includes("xp100")) add.push(BADGES[2]);
+      if (Object.values(state.progress?.[state.selected] || {}).filter(Boolean).length >= 10 && !state.badges.includes("tenlessons")) add.push(BADGES[3]);
+      if (!add.length) return "";
+      return `
     <div class="my-3 flex flex-wrap gap-3 justify-center">
-      ${add.map(b=>`
+      ${add.map(b => `
         <div class="glass px-4 py-2 rounded-xl flex items-center gap-1 text-zinc-100 shadow-sm border border-emerald-300">
           <span class="text-2xl">${b.emoji}</span>
           <span class="font-semibold">${b.text}</span>
@@ -746,26 +770,26 @@ function newBadgesUI() {
       `).join('')}
     </div>
   `;
-}
+    }
 
-// ---- PAGE: Review/Practice ----
-function reviewPage() {
-  if (!state.selected) return langPage();
-  // Flatten all completed lessons for this language
-  let done = (state.progress[state.selected]||{});
-  let lang = LANGUAGES.find(l=>l.id==state.selected);
-  let path = lang.path;
-  let unlockedIdxs = Object.keys(done).filter(k=>done[k]).map(k=>parseInt(k));
-  if (!unlockedIdxs.length) return `<div class="text-xl text-zinc-400 mt-24">No lessons completed. Finish a lesson first!</div>`;
-  // Pick random lesson+question
-  let randIdx = randomItem(unlockedIdxs);
-  let skill = path[randIdx].name;
-  let lesson = LESSONS[lang.id]?.[skill]||LESSONS.python.Basics;
-  let ri = Math.floor(Math.random()*lesson.length);
-  let q = lesson[ri];
-  state.lesson = {lang:lang.id, idx:randIdx, skill:skill, step:ri, answers:[], review:true};
-  // Render only that question, in mini-lesson mode
-  return `
+    // ---- PAGE: Review/Practice ----
+    function reviewPage() {
+      if (!state.selected) return langPage();
+      // Flatten all completed lessons for this language
+      let done = (state.progress[state.selected] || {});
+      let lang = LANGUAGES.find(l => l.id == state.selected);
+      let path = lang.path;
+      let unlockedIdxs = Object.keys(done).filter(k => done[k]).map(k => parseInt(k));
+      if (!unlockedIdxs.length) return `<div class="text-xl text-zinc-400 mt-24">No lessons completed. Finish a lesson first!</div>`;
+      // Pick random lesson+question
+      let randIdx = randomItem(unlockedIdxs);
+      let skill = path[randIdx].name;
+      let lesson = LESSONS[lang.id]?.[skill] || LESSONS.python.Basics;
+      let ri = Math.floor(Math.random() * lesson.length);
+      let q = lesson[ri];
+      state.lesson = { lang: lang.id, idx: randIdx, skill: skill, step: ri, answers: [], review: true };
+      // Render only that question, in mini-lesson mode
+      return `
     <div class="max-w-lg mx-auto mt-7 glass rounded-3xl shadow-lg pb-7 pt-4 px-6">
       <div class="text-lg mb-3 text-indigo-300 font-bold">${lang.emoji} ${lang.name} — Review</div>
       ${renderQ(q, undefined)}
@@ -776,32 +800,33 @@ function reviewPage() {
     </div>
     <div class="mt-5 text-center text-zinc-300 text-xs">Reviewing: ${skill}</div>
   `;
-}
+    }
 
-// ---- Routing
-function goto(page) {
-  state.page = page;
-  appRender();
-}
+    // ---- Routing
+    function goto(page) {
+      state.page = page;
+      appRender();
+    }
 
-/* ===== INIT ====== */
-function boot() {
-  // Load state from storage
-  state.selected = loadState("selected", null);
-  state.xp = loadState("xp", 0);
-  state.streak = loadState("streak", 0);
-  state.lastDay = loadState("lastDay", null);
-  state.progress = loadState("progress", {});
-  state.badges = loadState("badges", []);
-  state.msg = "";
-  if (!state.selected) 
-    state.page = "lang";
-  else
-    state.page = "dashboard";
-  appRender();
-}
-window.onload = boot;
+    /* ===== INIT ====== */
+    function boot() {
+      // Load state from storage
+      state.selected = loadState("selected", null);
+      state.xp = loadState("xp", 0);
+      state.streak = loadState("streak", 0);
+      state.lastDay = loadState("lastDay", null);
+      state.progress = loadState("progress", {});
+      state.badges = loadState("badges", []);
+      state.msg = "";
+      if (!state.selected)
+        state.page = "lang";
+      else
+        state.page = "dashboard";
+      appRender();
+    }
+    window.onload = boot;
 
-</script>
+  </script>
 </body>
+
 </html>
