@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Arivu AI v5</title>
+    <title>Arivu AI v9</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
     <link rel="stylesheet"
@@ -13,8 +13,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="favicon.png">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
     <style>
         :root {
             --bg-primary: #0d1117;
@@ -52,6 +50,9 @@
             --danger-text: #d93025;
         }
 
+        /* Themes Removed */
+
+        /* Mobile layout fix */
         html,
         body {
             height: 100%;
@@ -163,6 +164,11 @@
             .sidebar:not(.sidebar-expanded) .delete-btn {
                 display: none;
             }
+
+            /* NEW: Hide sidebar-collapsible items */
+            .sidebar:not(.sidebar-expanded) .sidebar-collapsible {
+                display: none;
+            }
         }
 
 
@@ -226,45 +232,6 @@
             margin-top: 1.5rem;
             margin-bottom: 1rem;
             font-weight: 600;
-        }
-
-        #image-preview-container {
-            position: relative;
-            margin-right: 8px;
-            margin-bottom: 4px;
-        }
-
-        #image-preview {
-            width: 48px;
-            height: 48px;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 1px solid var(--border-secondary);
-        }
-
-        #remove-image-btn {
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            width: 20px;
-            height: 20px;
-            background-color: var(--bg-tertiary);
-            color: var(--text-primary);
-            border: 1px solid var(--border-secondary);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: bold;
-            line-height: 1;
-            cursor: pointer;
-            transition: background-color 0.2s, color 0.2s;
-        }
-
-        #remove-image-btn:hover {
-            background-color: var(--danger-hover);
-            color: var(--danger-text);
         }
 
         .switch {
@@ -381,6 +348,7 @@
             }
         }
 
+        /* User message glass effect */
         .user-message-bubble {
             background-color: var(--bg-input);
             border: 1px solid var(--border-secondary);
@@ -393,13 +361,7 @@
             word-wrap: break-word;
         }
 
-        .user-message-bubble img {
-            max-width: 100%;
-            border-radius: 0.5rem;
-            margin-bottom: 0.5rem;
-            border: 1px solid var(--border-primary);
-        }
-
+        /* Message fade-in animation */
         .message-appear {
             animation: fade-in 0.3s ease-out;
         }
@@ -416,6 +378,7 @@
             }
         }
 
+        /* Typing indicator dots animation */
         .dot-flashing {
             position: relative;
             width: 8px;
@@ -496,18 +459,33 @@
                 </svg>
                 <span class="nav-text whitespace-nowrap">New Chat</span>
             </button>
-            <button id="tempChatBtn" class="nav-btn w-full text-left relative flex items-center p-3 rounded-lg">
+            <button id="tempChatBtn" class="nav-btn w-full text-left relative flex items-center p-3 rounded-lg"
+                title="Start a temporary chat (won't be saved)">
                 <svg class="w-5 h-5 flex-shrink-0 nav-icon mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
                 </svg>
-                <span class="nav-text whitespace-nowrap">Explore</span>
+                <span class="nav-text whitespace-nowrap">Temp Chat</span>
             </button>
+        </div>
+
+        <div class="p-2 sidebar-collapsible">
+            <div class="relative">
+                <input type="text" id="chatSearchInput" placeholder="Search chats..."
+                    class="w-full p-2 pl-8 text-sm rounded-lg bg-[var(--bg-input)] border border-[var(--border-secondary)] focus:outline-none focus:border-[var(--accent)]"
+                    style="color: var(--text-primary);">
+                <svg class="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]"
+                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </div>
         </div>
         <div class="flex-1 p-2 space-y-1 overflow-y-auto">
             <h3
-                class="px-4 py-2 text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider chat-list-title">
+                class="px-4 py-2 text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider chat-list-title sidebar-collapsible">
                 Recent Chats</h3>
             <div id="chatListContainer"></div>
         </div>
@@ -527,16 +505,41 @@
 
     <div class="flex-1 flex flex-col h-full bg-[var(--bg-primary)] min-w-0">
         <header
-            class="md:hidden flex items-center justify-between p-2 bg-[var(--bg-primary)] border-b border-[var(--border-primary)] flex-shrink-0">
+            class="flex items-center justify-between p-2 bg-[var(--bg-primary)] border-b border-[var(--border-primary)] flex-shrink-0">
             <button id="menu-toggle"
-                class="text-[var(--text-secondary)] p-2 rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors">
+                class="md:hidden text-[var(--text-secondary)] p-2 rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7">
                     </path>
                 </svg>
             </button>
-            <h2 class="text-lg font-semibold">Arivu AI</h2>
-            <div class="w-10"></div>
+            <div class="flex-1"></div>
+            <div class="flex items-center p-3 h-16 flex-shrink-0">
+                <span class="text-xl font-bold mr-2 whitespace-nowrap hidden md:inline">Arivu AI</span>
+                <div
+                    class="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
+                    <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 9V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v2" />
+                        <path d="M12 11v10" />
+                        <path d="M4.1 11H20" />
+                        <path d="M17.8 11.1 15 15" />
+                        <path d="M6.2 11.1 9 15" />
+                        <path d="m13 20 4-4" />
+                        <path d="m7 20-4-4" />
+                    </svg>
+                </div>
+            </div>
+            <button id="export-chat-btn"
+                class="text-[var(--text-secondary)] p-2 rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors"
+                title="Export Chat">
+                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+            </button>
         </header>
         <main class="flex-1 flex flex-col overflow-hidden">
             <div id="chatContainer" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-8">
@@ -552,7 +555,7 @@
                 <div class="max-w-3xl mx-auto">
 
                     <div class="flex flex-wrap items-center justify-start gap-2 px-3 mb-2">
-                        <button id="mode-toggle-none" class="mode-toggle-btn active" title="Standard Mode">
+                        <button id="mode-toggle-none" class="mode-toggle-btn active" title="Standard Mode (Temp 0.8)">
                             <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="1.1"></circle>
@@ -562,7 +565,7 @@
                             </svg>
                             <span class="ml-1.5">Standard</span>
                         </button>
-                        <button id="mode-toggle-web" class="mode-toggle-btn" title="Web Search Mode">
+                        <button id="mode-toggle-web" class="mode-toggle-btn" title="Factual Mode (Temp 0.3)">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10"></circle>
@@ -571,39 +574,43 @@
                                     d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
                                 </path>
                             </svg>
-                            <span class="ml-1.5">Web Search</span>
+                            <span class="ml-1.5">Factual</span>
                         </button>
-                        <button id="mode-toggle-creative" class="mode-toggle-btn" title="Deep Learning Mode">
+                        <button id="mode-toggle-creative" class="mode-toggle-btn" title="Creative Mode (Temp 1.2)">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 3L9.5 8.5 4 10l5.5 5.5L8 21l4-3 4 3-1.5-5.5L20 10l-5.5-1.5z" />
                             </svg>
-                            <span class="ml-1.5">Deep Learning</span>
+                            <span class="ml-1.5">Creative</span>
                         </button>
+
+                        <div class="relative">
+                            <select id="persona-select" class="mode-toggle-btn appearance-none"
+                                style="padding-right: 2rem;">
+                                <option value="">Default Persona</option>
+                                <option
+                                    value="You are a master Python programmer. You only provide code and explanations for Python.">
+                                    Python Expert</option>
+                                <option
+                                    value="You are a sarcastic and witty assistant. You answer questions reluctantly.">
+                                    Sarcastic Friend</option>
+                                <option
+                                    value="You are a helpful assistant for writing SQL queries. You provide optimized SQL code.">
+                                    SQL Helper</option>
+                                <option
+                                    value="You are a creative writer. You answer in the form of a short poem or story.">
+                                    Creative Writer</option>
+                            </select>
+                            <svg class="w-4 h-4 absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] pointer-events-none"
+                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
                     </div>
 
                     <div class="flex items-end chat-input rounded-xl p-2">
-                        <div id="image-preview-container" class="hidden self-end"></div>
-                        <label for="file-upload"
-                            class="utility-btn p-2 cursor-pointer text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors"
-                            title="Upload File"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5"
-                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path
-                                    d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48">
-                                </path>
-                            </svg></label>
-                        <input type="file" id="file-upload" class="hidden">
-                        <label for="image-upload"
-                            class="utility-btn p-2 cursor-pointer text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors"
-                            title="Upload Image"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5"
-                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                <polyline points="21 15 16 10 5 21"></polyline>
-                            </svg></label>
-                        <input type="file" id="image-upload" class="hidden" accept="image/*">
                         <textarea id="userQuestion" rows="1" placeholder="Ask Arivu anything..."
                             class="flex-1 bg-transparent text-[var(--text-primary)] focus:outline-none resize-none px-2 max-h-48 self-center"></textarea>
                         <button id="askBtn"
@@ -637,15 +644,34 @@
             </div>
             <div class="p-6 space-y-6">
                 <div class="flex items-center justify-between">
-                    <label for="theme-toggle" class="font-medium">Light Theme</label>
+                    <label for="theme-toggle" class="font-medium">Light Mode</label>
                     <label class="switch"><input type="checkbox" id="theme-toggle"><span class="slider"></span></label>
                 </div>
+
                 <div class="border-t border-[var(--border-primary)] pt-6">
                     <h3 class="font-semibold mb-2">About</h3>
                     <p class="text-sm text-[var(--text-secondary)]">
-                        Arivu AI v5 is a standalone chat interface powered by Google's Gemini Pro.
+                        Arivu AI v9 is a standalone chat interface powered by Google's Gemini.
                         Designed and developed by T&T Mani.
                     </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="custom-modal-overlay" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50"></div>
+    <div id="custom-modal"
+        class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm z-50 message-appear">
+        <div
+            class="m-4 bg-[var(--bg-glass)] backdrop-blur-xl border border-[var(--border-primary)] rounded-lg shadow-2xl text-[var(--text-primary)]">
+            <div class="p-6">
+                <h3 id="custom-modal-title" class="text-lg font-semibold mb-2">Modal Title</h3>
+                <p id="custom-modal-message" class="text-sm text-[var(--text-secondary)] mb-6">Modal message goes here.
+                </p>
+                <div id="custom-modal-buttons" class="flex justify-end gap-3">
+                    <button id="custom-modal-btn-cancel" class="nav-btn px-4 py-2 rounded-lg">Cancel</button>
+                    <button id="custom-modal-btn-confirm"
+                        class="bg-[var(--danger-text)] text-white px-4 py-2 rounded-lg hover:bg-opacity-80 transition-colors">Confirm</button>
                 </div>
             </div>
         </div>
@@ -654,14 +680,19 @@
 
     <script type="module">
         // --- Global State ---
-        let uploadedImageBase64 = null, uploadedImageMimeType = null, currentChatId = null;
+        let currentChatId = null;
         let currentChatMode = 'none'; // 'none', 'web', 'creative'
-        // IMPORTANT: Replace with your actual Gemini API key
-        const apiKey = "AIzaSyDicsJgqwB9cbCYEU6cd3fj6Yd6ej50Myk";
+        let confirmCallback = null; // Stores the action for the confirm modal
 
-        // --- CHANGE 1: Switched to the stable 'gemini-pro' text model ---
-        const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent?key=${apiKey}`;
+        // -----------------------------------------------------------------
+        // v v v 🚨 PASTE YOUR GEMINI API KEY HERE 🚨 v v v
+        // -----------------------------------------------------------------
+        // This is INSECURE! Do not use on a public website.
+        const apiKey = "AIzaSyCemKXt-Y4RbcLCsot6Dp6UnPUWqWm_72U";
+        // -----------------------------------------------------------------
 
+        // UPDATED: Using the gemini-1.5-flash streaming endpoint (TEXT-ONLY)
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:streamGenerateContent?key=${apiKey}`;
 
         const markdownConverter = new showdown.Converter({ tables: true, strikethrough: true, simplifiedAutoLink: true });
 
@@ -673,8 +704,6 @@
             emptyChatPlaceholder: document.getElementById('emptyChatPlaceholder'),
             newChatBtn: document.getElementById('newChatBtn'),
             tempChatBtn: document.getElementById('tempChatBtn'),
-            imageUploadInput: document.getElementById('image-upload'),
-            imagePreviewContainer: document.getElementById('image-preview-container'),
             sidebar: document.getElementById('sidebar'),
             menuToggle: document.getElementById('menu-toggle'),
             desktopSidebarToggle: document.getElementById('desktop-sidebar-toggle'),
@@ -689,14 +718,26 @@
             modeToggleNone: document.getElementById('mode-toggle-none'),
             modeToggleWeb: document.getElementById('mode-toggle-web'),
             modeToggleCreative: document.getElementById('mode-toggle-creative'),
-            splashScreen: document.getElementById('splash-screen')
+            splashScreen: document.getElementById('splash-screen'),
+            exportChatBtn: document.getElementById('export-chat-btn'),
+
+            chatSearchInput: document.getElementById('chatSearchInput'), // NEW
+
+            // Theme buttons REMOVED
+
+            // Custom Modal DOM Elements
+            customModal: document.getElementById('custom-modal'),
+            customModalOverlay: document.getElementById('custom-modal-overlay'),
+            customModalTitle: document.getElementById('custom-modal-title'),
+            customModalMessage: document.getElementById('custom-modal-message'),
+            customModalBtnConfirm: document.getElementById('custom-modal-btn-confirm'),
+            customModalBtnCancel: document.getElementById('custom-modal-btn-cancel')
         };
 
         // --- Event Listeners ---
         dom.askBtn.addEventListener("click", handleAsk);
         dom.newChatBtn.addEventListener('click', () => startNewChat(true));
         dom.tempChatBtn.addEventListener('click', () => startNewChat(false));
-        dom.imageUploadInput.addEventListener('change', handleImageUpload);
         dom.userQuestion.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleAsk(); } });
         dom.userQuestion.addEventListener('input', autoResizeTextarea);
         dom.menuToggle.addEventListener('click', toggleMobileSidebar);
@@ -705,11 +746,106 @@
         dom.settingsBtn.addEventListener('click', toggleSettingsModal);
         dom.closeSettingsBtn.addEventListener('click', toggleSettingsModal);
         dom.settingsModalOverlay.addEventListener('click', toggleSettingsModal);
-        dom.themeToggle.addEventListener('change', handleThemeChange);
+        dom.themeToggle.addEventListener('change', handleThemeChange); // Restored to simple light/dark
         dom.modeToggleNone.addEventListener('click', () => setChatMode('none'));
         dom.modeToggleWeb.addEventListener('click', () => setChatMode('web'));
         dom.modeToggleCreative.addEventListener('click', () => setChatMode('creative'));
+        dom.exportChatBtn.addEventListener('click', exportChat);
+        dom.chatSearchInput.addEventListener('input', handleChatSearch); // NEW
 
+        // Theme Button Listeners REMOVED
+
+        // Custom Modal Event Listeners
+        dom.customModalBtnConfirm.addEventListener('click', () => {
+            if (confirmCallback) {
+                confirmCallback();
+            }
+            hideCustomModal();
+        });
+        dom.customModalBtnCancel.addEventListener('click', hideCustomModal);
+        dom.customModalOverlay.addEventListener('click', hideCustomModal);
+
+
+        // --- Custom Modal Functions ---
+        function showCustomAlert(title, message) {
+            dom.customModalTitle.textContent = title;
+            dom.customModalMessage.textContent = message;
+            dom.customModalBtnConfirm.textContent = 'OK';
+            dom.customModalBtnCancel.classList.add('hidden');
+            dom.customModalBtnConfirm.classList.remove('bg-[var(--danger-text)]');
+            dom.customModalBtnConfirm.classList.add('bg-[var(--accent)]');
+            dom.customModal.classList.remove('hidden');
+            dom.customModalOverlay.classList.remove('hidden');
+            confirmCallback = null;
+        }
+
+        function showCustomConfirm(title, message, callback) {
+            dom.customModalTitle.textContent = title;
+            dom.customModalMessage.textContent = message;
+            dom.customModalBtnConfirm.textContent = 'Confirm';
+            dom.customModalBtnCancel.classList.remove('hidden');
+            dom.customModalBtnConfirm.classList.add('bg-[var(--danger-text)]');
+            dom.customModalBtnConfirm.classList.remove('bg-[var(--accent)]');
+            dom.customModal.classList.remove('hidden');
+            dom.customModalOverlay.classList.remove('hidden');
+            confirmCallback = callback;
+        }
+
+        function hideCustomModal() {
+            dom.customModal.classList.add('hidden');
+            dom.customModalOverlay.classList.add('hidden');
+            confirmCallback = null;
+        }
+
+        // --- NEW Feature: Chat Search ---
+        function handleChatSearch() {
+            const filter = dom.chatSearchInput.value.toLowerCase();
+            const allChatButtons = dom.chatListContainer.querySelectorAll('.nav-btn');
+
+            allChatButtons.forEach(btn => {
+                const title = btn.title.toLowerCase();
+                if (title.includes(filter)) {
+                    btn.style.display = 'flex';
+                } else {
+                    btn.style.display = 'none';
+                }
+            });
+        }
+
+        // --- NEW Feature: Export Chat ---
+        function exportChat() {
+            if (!currentChatId || currentChatId === 'temp') {
+                showCustomAlert("No Chat Selected", "Please start a conversation to export it.");
+                return;
+            }
+
+            const chatHistory = loadChatHistory(currentChatId);
+            const chatTitle = getChatTitle(currentChatId) || 'Arivu-AI-Chat';
+
+            let chatText = `Chat Title: ${chatTitle}\n`;
+            chatText += `Exported on: ${new Date().toISOString()}\n\n`;
+            chatText += "========================================\n\n";
+
+            chatHistory.forEach(turn => {
+                const textPart = turn.parts.find(p => p.text)?.text || '';
+                if (textPart.startsWith("SYSTEM INSTRUCTION:") || textPart === "OK. I will follow your instructions.") {
+                    return;
+                }
+                const role = turn.role === 'model' ? 'Arivu AI' : 'User';
+                chatText += `[${role}]\n`;
+                chatText += `${textPart}\n\n`;
+            });
+
+            const blob = new Blob([chatText], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${chatTitle.replace(/ /g, '_')}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
 
         // --- Core Logic ---
         function setChatMode(mode) {
@@ -734,55 +870,34 @@
             if (window.innerWidth < 768) toggleMobileSidebar();
         }
 
-        // --- CHANGE 2: Modified handleAsk ---
         async function handleAsk() {
-            const question = dom.userQuestion.value.trim();
-
-            let systemPrefix = "";
-            if (currentChatMode === 'web') {
-                systemPrefix = "Please search the web for the most up-to-date information to answer. ";
-            } else if (currentChatMode === 'creative') {
-                systemPrefix = "Please provide a highly creative, detailed, and insightful response (deep learning mode). ";
+            if (apiKey === "PASTE_YOUR_GOOGLE_GEMINI_API_KEY_HERE") {
+                showCustomAlert("API Key Missing", "Please paste your Google Gemini API key into the 'apiKey' variable in the code to start.");
+                return;
             }
 
-            const finalQuestion = systemPrefix + question;
-
-            // Allow press 'ask' if there is text OR an image
-            if (!question && !uploadedImageBase64) return;
+            const finalQuestion = dom.userQuestion.value.trim();
+            if (!finalQuestion) return;
 
             if (currentChatId && currentChatId !== 'temp' && !getChatTitle(currentChatId)) {
-                const title = question.substring(0, 40) || 'Image Query';
+                const title = finalQuestion.substring(0, 40) || 'New Chat';
                 saveChatTitle(currentChatId, title);
                 renderChatList();
             } else if (!currentChatId) {
                 currentChatId = crypto.randomUUID();
-                const title = question.substring(0, 40) || 'New Conversation';
+                const title = finalQuestion.substring(0, 40) || 'New Conversation';
                 saveChatTitle(currentChatId, title);
                 renderChatList();
             }
 
             let chatHistory = loadChatHistory(currentChatId);
+            appendMessage({ text: finalQuestion, sender: 'user' });
 
-            // Append the message to the UI (this CAN show the image)
-            appendMessage({ text: question, sender: 'user', image: uploadedImageBase64 ? dom.imagePreviewContainer.querySelector('img').src : null });
-
-            // --- This is the key change ---
-            // Create the message for the API. gemini-pro ONLY accepts text.
-            // Even if an image was uploaded, we *only* send the text part.
             const userMessage = { role: "user", parts: [{ text: finalQuestion }] };
-
-            // If the user *only* uploaded an image and wrote no text, send a placeholder.
-            if (!question && uploadedImageBase64) {
-                userMessage.parts[0].text = "[User uploaded an image (AI cannot see it)]";
-            }
-            // --- End of key change ---
-
             chatHistory.push(userMessage);
-            saveChatHistory(currentChatId, chatHistory);
 
             dom.userQuestion.value = '';
             autoResizeTextarea();
-            clearImagePreview();
             showTypingIndicator();
 
             const botResponse = await getBotResponse(chatHistory);
@@ -791,31 +906,53 @@
             saveChatHistory(currentChatId, chatHistory);
         }
 
-        // --- CHANGE 3: Modified getBotResponse ---
+        // --- UPDATED function for GEMINI 1.5 FLASH (Streaming, TEXT-ONLY) ---
         async function getBotResponse(history) {
+
+            removeTypingIndicator();
+            const botMessageContainer = appendMessage({ text: '', sender: 'bot' });
+            let fullResponse = "";
+
             try {
-                // --- This is the key change ---
-                // We must clean the history to remove any image data,
-                // as gemini-pro only accepts text.
-                const cleanedHistory = history
-                    .map(turn => {
-                        // Find the first text part
-                        const textPart = turn.parts.find(part => part.text);
-                        if (textPart) {
-                            return {
-                                role: turn.role,
-                                parts: [{ text: textPart.text }]
-                            };
-                        }
-                        // If a turn had no text (e.g., was an image), it will be filtered out
-                        return null;
-                    })
-                    .filter(Boolean); // Remove null/empty turns
-                // --- End of key change ---
+                const persona = document.getElementById('persona-select').value;
+                let temperature = 0.8;
+                if (currentChatMode === 'creative') {
+                    temperature = 1.2;
+                } else if (currentChatMode === 'web') {
+                    temperature = 0.3;
+                }
 
-                const payload = { contents: cleanedHistory }; // Use the cleaned history
+                const generationConfig = {
+                    temperature: temperature,
+                };
 
-                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const systemInstruction = persona ? {
+                    role: "user",
+                    parts: [{ text: `SYSTEM INSTRUCTION: ${persona}. Begin.` }]
+                } : null;
+
+                const contents = history.map(turn => {
+                    return {
+                        role: turn.role,
+                        parts: [{ text: turn.parts[0].text }]
+                    }
+                }).filter(Boolean);
+
+                if (systemInstruction) {
+                    contents.unshift(systemInstruction);
+                    contents.splice(1, 0, { role: "model", parts: [{ text: "OK. I will follow your instructions." }] });
+                }
+
+                const payload = {
+                    contents: contents,
+                    generationConfig: generationConfig
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
 
                 if (!response.ok) {
                     const errorBody = await response.json();
@@ -823,21 +960,58 @@
                     throw new Error(`API Error: ${errorDetails}`);
                 }
 
-                const result = await response.json();
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
 
-                if (result.promptFeedback?.blockReason) {
-                    throw new Error(`Request blocked: ${result.promptFeedback.blockReason}`);
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) {
+                        break;
+                    }
+
+                    buffer += decoder.decode(value, { stream: true });
+
+                    let boundary = buffer.indexOf('\n');
+                    while (boundary !== -1) {
+                        const chunk = buffer.substring(0, boundary).trim();
+                        buffer = buffer.substring(boundary + 1);
+
+                        if (chunk.startsWith(',') || chunk === '[' || chunk === ']') {
+                            boundary = buffer.indexOf('\n');
+                            continue;
+                        }
+
+                        if (chunk.trim()) {
+                            try {
+                                const json = JSON.parse(chunk);
+                                const textChunk = json.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                                if (textChunk) {
+                                    fullResponse += textChunk;
+                                    botMessageContainer.innerHTML = markdownConverter.makeHtml(fullResponse + " ▌");
+                                    scrollToBottom();
+                                }
+                                if (json.promptFeedback?.blockReason) {
+                                    throw new Error(`Request blocked: ${json.promptFeedback.blockReason}`);
+                                }
+                            } catch (e) {
+                                // console.warn('Failed to parse JSON chunk:', chunk, e);
+                            }
+                        }
+                        boundary = buffer.indexOf('\n');
+                    }
                 }
 
-                const botMessage = result.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't generate a response.";
-                removeTypingIndicator();
-                appendMessage({ text: botMessage, sender: 'bot' });
-                return botMessage;
+                botMessageContainer.innerHTML = markdownConverter.makeHtml(fullResponse);
+                processCodeBlocks(botMessageContainer);
+                return fullResponse;
+
             } catch (error) {
                 console.error('Error fetching bot response:', error);
                 removeTypingIndicator();
                 const errorMessage = `Sorry, an error occurred: ${error.message}. Please check the console and your API key.`;
-                appendMessage({ text: errorMessage, sender: 'bot' });
+                botMessageContainer.innerHTML = `<p style="color:var(--danger-text);">${errorMessage}</p>`;
                 return errorMessage;
             }
         }
@@ -856,13 +1030,11 @@
         function clearChatView() {
             dom.chatContainer.innerHTML = '';
             dom.emptyChatPlaceholder.classList.remove('hidden');
-            clearImagePreview();
             dom.userQuestion.value = '';
             dom.userQuestion.focus();
             setChatMode('none');
         }
 
-        // --- CHANGE 4: Modified window.loadChat ---
         window.loadChat = (chatId) => {
             currentChatId = chatId;
             const chatHistory = loadChatHistory(chatId);
@@ -870,21 +1042,18 @@
             dom.emptyChatPlaceholder.classList.add('hidden');
 
             chatHistory.forEach(turn => {
-                // Only look for text parts. Ignore any image data from old chats.
                 const textPart = turn.parts.find(p => p.text)?.text || '';
-
                 let userText = textPart;
                 if (turn.role === 'user') {
-                    if (userText.startsWith("Please search the web")) {
-                        userText = userText.replace(/^Please search the web.*answer\. /, '');
-                    } else if (userText.startsWith("Please provide a highly creative")) {
-                        userText = userText.replace(/^Please provide a highly creative.*mode\)\. /, '');
+                    if (userText.startsWith("SYSTEM INSTRUCTION:")) {
+                        return;
                     }
-
-                    // We don't need to check for images, just append the text.
                     appendMessage({ text: userText, sender: 'user' });
 
-                } else { // 'model' role
+                } else {
+                    if (userText === "OK. I will follow your instructions.") {
+                        return;
+                    }
                     appendMessage({ text: userText, sender: 'bot' });
                 }
             });
@@ -894,26 +1063,32 @@
 
         window.deleteChat = (event, chatId) => {
             event.stopPropagation();
-            if (confirm('Are you sure you want to delete this chat?')) {
+            showCustomConfirm('Delete Chat?', 'Are you sure you want to delete this chat?', () => {
                 const allChats = getAllChats();
                 delete allChats[chatId];
                 localStorage.setItem('arivu-chats-v4', JSON.stringify(allChats));
                 if (currentChatId === chatId) { currentChatId = null; clearChatView(); }
                 renderChatList();
-            }
+            });
         }
 
-        // This function is unchanged and works correctly.
-        // It will show the image in the user bubble if 'image' is passed,
-        // which handleAsk does, but loadChat does not (which is correct).
-        function appendMessage({ text, sender, image = null }) {
+        function appendMessage({ text, sender }) {
             dom.emptyChatPlaceholder.classList.add('hidden');
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message-appear');
 
+            // NEW: Crab Logo
             const botIcon = `
                 <div class="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
-                    <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L9.5 8.5 4 10l5.5 5.5L8 21l4-3 4 3-1.5-5.5L20 10l-5.5-1.5z"/></svg>
+                    <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 9V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v2"/>
+                        <path d="M12 11v10"/>
+                        <path d="M4.1 11H20"/>
+                        <path d="M17.8 11.1 15 15"/>
+                        <path d="M6.2 11.1 9 15"/>
+                        <path d="m13 20 4-4"/>
+                        <path d="m7 20-4-4"/>
+                    </svg>
                 </div>`;
 
             if (sender === 'bot') {
@@ -928,7 +1103,6 @@
                 messageDiv.innerHTML = `
                     <div class="flex justify-end max-w-3xl mx-auto">
                         <div class="user-message-bubble">
-                            ${image ? `<img src="${image}" alt="User upload" class="max-w-xs rounded-md my-2 border border-[var(--border-primary)]">` : ''}
                             <div class="content-text"></div>
                         </div>
                     </div>`;
@@ -942,19 +1116,23 @@
                 } else {
                     contentContainer.textContent = text;
                 }
-            } else if (image && sender === 'user' && !text) {
-                // Handle image-only upload text fallback
-                contentContainer.textContent = "[User uploaded an image (AI cannot see it)]";
             }
 
             dom.chatContainer.appendChild(messageDiv);
             scrollToBottom();
+
+            if (sender === 'bot') {
+                return contentContainer;
+            }
         }
 
-        // --- Theme Management ---
+        // --- Theme Management (Restored to simple) ---
         function applyTheme(theme) {
-            if (theme === 'light') dom.htmlEl.classList.add('light-theme');
-            else dom.htmlEl.classList.remove('light-theme');
+            if (theme === 'light') {
+                dom.htmlEl.classList.add('light-theme');
+            } else {
+                dom.htmlEl.classList.remove('light-theme');
+            }
         }
         function handleThemeChange() {
             const newTheme = dom.themeToggle.checked ? 'light' : 'dark';
@@ -967,10 +1145,19 @@
             const indicator = document.createElement("div");
             indicator.id = "typing-indicator";
             indicator.classList.add('message-appear');
+            // NEW: Crab Logo
             indicator.innerHTML = `
                 <div class="flex items-start gap-3 max-w-3xl mx-auto">
                     <div class="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
-                        <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L9.5 8.5 4 10l5.5 5.5L8 21l4-3 4 3-1.5-5.5L20 10l-5.5-1.5z"/></svg>
+                        <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 9V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v2"/>
+                            <path d="M12 11v10"/>
+                            <path d="M4.1 11H20"/>
+                            <path d="M17.8 11.1 15 15"/>
+                            <path d="M6.2 11.1 9 15"/>
+                            <path d="m13 20 4-4"/>
+                            <path d="m7 20-4-4"/>
+                        </svg>
                     </div>
                     <div class="flex-1 pt-1 flex items-center" style="height: 2.25rem;"> 
                         <div class="dot-flashing"></div>
@@ -1006,11 +1193,21 @@
                     wrapper.appendChild(header);
                     wrapper.appendChild(pre);
                     header.querySelector(".copy-btn").addEventListener("click", e => {
-                        navigator.clipboard.writeText(code.innerText);
-                        const button = e.currentTarget;
-                        const originalHTML = button.innerHTML;
-                        button.innerHTML = "Copied!";
-                        setTimeout(() => { button.innerHTML = originalHTML; }, 2000);
+                        try {
+                            const tempTextArea = document.createElement('textarea');
+                            tempTextArea.value = code.innerText;
+                            document.body.appendChild(tempTextArea);
+                            tempTextArea.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(tempTextArea);
+
+                            const button = e.currentTarget;
+                            const originalHTML = button.innerHTML;
+                            button.innerHTML = "Copied!";
+                            setTimeout(() => { button.innerHTML = originalHTML; }, 2000);
+                        } catch (err) {
+                            console.error('Failed to copy text: ', err);
+                        }
                     });
                     hljs.highlightElement(code);
                 }
@@ -1018,32 +1215,6 @@
         }
 
         function scrollToBottom() { dom.chatContainer.scrollTop = dom.chatContainer.scrollHeight; }
-
-        function handleImageUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = e => {
-                uploadedImageBase64 = e.target.result.split(",")[1];
-                uploadedImageMimeType = file.type;
-                showImagePreview(e.target.result);
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function showImagePreview(src) {
-            dom.imagePreviewContainer.innerHTML = `<img id="image-preview" src="${src}" alt="Image preview"><button id="remove-image-btn" title="Remove image">&times;</button>`;
-            dom.imagePreviewContainer.classList.remove("hidden");
-            document.getElementById("remove-image-btn").addEventListener("click", clearImagePreview);
-        }
-
-        function clearImagePreview() {
-            uploadedImageBase64 = null;
-            uploadedImageMimeType = null;
-            dom.imageUploadInput.value = "";
-            dom.imagePreviewContainer.innerHTML = "";
-            dom.imagePreviewContainer.classList.add("hidden");
-        }
 
         function autoResizeTextarea() {
             dom.userQuestion.style.height = 'auto';
@@ -1104,9 +1275,11 @@
 
         // --- Initialization ---
         function init() {
+            // Restored simple theme logic
             const savedTheme = localStorage.getItem('arivu-theme-v4') || 'dark';
             applyTheme(savedTheme);
             dom.themeToggle.checked = (savedTheme === 'light');
+
             renderChatList();
             updateActiveChatInSidebar();
             autoResizeTextarea();
@@ -1116,9 +1289,10 @@
                 dom.splashScreen.classList.add('hidden');
             }, 1500);
 
-            console.log("Arivu AI Chat v5 (gemini-pro text-only) is ready.");
+            console.log("Arivu AI Chat v9 is ready. (Using Google Gemini 1.5 Flash)");
         }
 
+        // Run the app
         init();
     </script>
 </body>
