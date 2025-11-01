@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Arivu AI v9</title>
+    <title>Arivu AI v10 (Ollama)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
     <link rel="stylesheet"
@@ -50,9 +50,6 @@
             --danger-text: #d93025;
         }
 
-        /* Themes Removed */
-
-        /* Mobile layout fix */
         html,
         body {
             height: 100%;
@@ -165,7 +162,6 @@
                 display: none;
             }
 
-            /* NEW: Hide sidebar-collapsible items */
             .sidebar:not(.sidebar-expanded) .sidebar-collapsible {
                 display: none;
             }
@@ -348,7 +344,6 @@
             }
         }
 
-        /* User message glass effect */
         .user-message-bubble {
             background-color: var(--bg-input);
             border: 1px solid var(--border-secondary);
@@ -361,7 +356,6 @@
             word-wrap: break-word;
         }
 
-        /* Message fade-in animation */
         .message-appear {
             animation: fade-in 0.3s ease-out;
         }
@@ -378,7 +372,6 @@
             }
         }
 
-        /* Typing indicator dots animation */
         .dot-flashing {
             position: relative;
             width: 8px;
@@ -483,6 +476,7 @@
                 </svg>
             </div>
         </div>
+
         <div class="flex-1 p-2 space-y-1 overflow-y-auto">
             <h3
                 class="px-4 py-2 text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider chat-list-title sidebar-collapsible">
@@ -530,6 +524,7 @@
                     </svg>
                 </div>
             </div>
+
             <button id="export-chat-btn"
                 class="text-[var(--text-secondary)] p-2 rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors"
                 title="Export Chat">
@@ -541,6 +536,7 @@
                 </svg>
             </button>
         </header>
+
         <main class="flex-1 flex flex-col overflow-hidden">
             <div id="chatContainer" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-8">
                 <div id="emptyChatPlaceholder"
@@ -651,7 +647,7 @@
                 <div class="border-t border-[var(--border-primary)] pt-6">
                     <h3 class="font-semibold mb-2">About</h3>
                     <p class="text-sm text-[var(--text-secondary)]">
-                        Arivu AI v9 is a standalone chat interface powered by Google's Gemini.
+                        Arivu AI v10 (Ollama) is a standalone chat interface.
                         Designed and developed by T&T Mani.
                     </p>
                 </div>
@@ -682,17 +678,14 @@
         // --- Global State ---
         let currentChatId = null;
         let currentChatMode = 'none'; // 'none', 'web', 'creative'
-        let confirmCallback = null; // Stores the action for the confirm modal
+        let confirmCallback = null;
 
-        // -----------------------------------------------------------------
-        // v v v 🚨 PASTE YOUR GEMINI API KEY HERE 🚨 v v v
-        // -----------------------------------------------------------------
-        // This is INSECURE! Do not use on a public website.
-        const apiKey = "AIzaSyDjagedrjeVS-kutYT9avk6A0KFyEwcR00";
-        // -----------------------------------------------------------------
+        // --- API Key and URL REMOVED ---
+        // const apiKey = ... (REMOVED)
+        // const apiUrl = ... (REMOVED)
 
-        // UPDATED: Using the gemini-1.5-flash streaming endpoint (TEXT-ONLY)
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:streamGenerateContent?key=${apiKey}`;
+        // --- NEW: OLLAMA API ---
+        const ollamaUrl = 'http://localhost:11434/api/chat';
 
         const markdownConverter = new showdown.Converter({ tables: true, strikethrough: true, simplifiedAutoLink: true });
 
@@ -720,10 +713,7 @@
             modeToggleCreative: document.getElementById('mode-toggle-creative'),
             splashScreen: document.getElementById('splash-screen'),
             exportChatBtn: document.getElementById('export-chat-btn'),
-
-            chatSearchInput: document.getElementById('chatSearchInput'), // NEW
-
-            // Theme buttons REMOVED
+            chatSearchInput: document.getElementById('chatSearchInput'),
 
             // Custom Modal DOM Elements
             customModal: document.getElementById('custom-modal'),
@@ -746,14 +736,12 @@
         dom.settingsBtn.addEventListener('click', toggleSettingsModal);
         dom.closeSettingsBtn.addEventListener('click', toggleSettingsModal);
         dom.settingsModalOverlay.addEventListener('click', toggleSettingsModal);
-        dom.themeToggle.addEventListener('change', handleThemeChange); // Restored to simple light/dark
+        dom.themeToggle.addEventListener('change', handleThemeChange);
         dom.modeToggleNone.addEventListener('click', () => setChatMode('none'));
         dom.modeToggleWeb.addEventListener('click', () => setChatMode('web'));
         dom.modeToggleCreative.addEventListener('click', () => setChatMode('creative'));
         dom.exportChatBtn.addEventListener('click', exportChat);
-        dom.chatSearchInput.addEventListener('input', handleChatSearch); // NEW
-
-        // Theme Button Listeners REMOVED
+        dom.chatSearchInput.addEventListener('input', handleChatSearch);
 
         // Custom Modal Event Listeners
         dom.customModalBtnConfirm.addEventListener('click', () => {
@@ -797,7 +785,7 @@
             confirmCallback = null;
         }
 
-        // --- NEW Feature: Chat Search ---
+        // --- Chat Search ---
         function handleChatSearch() {
             const filter = dom.chatSearchInput.value.toLowerCase();
             const allChatButtons = dom.chatListContainer.querySelectorAll('.nav-btn');
@@ -812,7 +800,7 @@
             });
         }
 
-        // --- NEW Feature: Export Chat ---
+        // --- Export Chat ---
         function exportChat() {
             if (!currentChatId || currentChatId === 'temp') {
                 showCustomAlert("No Chat Selected", "Please start a conversation to export it.");
@@ -871,11 +859,7 @@
         }
 
         async function handleAsk() {
-            if (apiKey === "PASTE_YOUR_GOOGLE_GEMINI_API_KEY_HERE") {
-                showCustomAlert("API Key Missing", "Please paste your Google Gemini API key into the 'apiKey' variable in the code to start.");
-                return;
-            }
-
+            // API key check REMOVED
             const finalQuestion = dom.userQuestion.value.trim();
             if (!finalQuestion) return;
 
@@ -906,60 +890,65 @@
             saveChatHistory(currentChatId, chatHistory);
         }
 
-        // --- UPDATED function for GEMINI 1.5 FLASH (Streaming, TEXT-ONLY) ---
+        // --- This is the NEW function for OLLAMA (with Streaming) ---
         async function getBotResponse(history) {
+
+            // --- Configuration ---
+            // Use a fast, text-only model. `llama3` is great.
+            // Or `gemma:2b` for even faster responses.
+            const modelToUse = 'llama3';
+            // ---------------------
 
             removeTypingIndicator();
             const botMessageContainer = appendMessage({ text: '', sender: 'bot' });
             let fullResponse = "";
 
             try {
+                // 1. Get Persona and Temperature settings
                 const persona = document.getElementById('persona-select').value;
                 let temperature = 0.8;
                 if (currentChatMode === 'creative') {
                     temperature = 1.2;
                 } else if (currentChatMode === 'web') {
-                    temperature = 0.3;
+                    temperature = 0.3; // 'Factual'
                 }
 
-                const generationConfig = {
-                    temperature: temperature,
-                };
-
-                const systemInstruction = persona ? {
-                    role: "user",
-                    parts: [{ text: `SYSTEM INSTRUCTION: ${persona}. Begin.` }]
-                } : null;
-
-                const contents = history.map(turn => {
+                // 2. Convert history to Ollama's 'messages' format
+                const messages = history.map(turn => {
                     return {
-                        role: turn.role,
-                        parts: [{ text: turn.parts[0].text }]
-                    }
-                }).filter(Boolean);
+                        role: turn.role === 'model' ? 'assistant' : 'user',
+                        content: turn.parts[0].text
+                    };
+                });
 
-                if (systemInstruction) {
-                    contents.unshift(systemInstruction);
-                    contents.splice(1, 0, { role: "model", parts: [{ text: "OK. I will follow your instructions." }] });
+                // Add system instruction (if it exists)
+                if (persona) {
+                    messages.unshift({ role: 'system', content: persona });
                 }
 
+                // 3. Create the payload for Ollama
                 const payload = {
-                    contents: contents,
-                    generationConfig: generationConfig
+                    model: modelToUse,
+                    messages: messages,
+                    stream: true, // <-- ENABLED FOR TYPEWRITER EFFECT
+                    options: {
+                        temperature: temperature
+                    }
                 };
 
-                const response = await fetch(apiUrl, {
+                // 4. Call the Ollama API
+                const response = await fetch(ollamaUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
 
                 if (!response.ok) {
-                    const errorBody = await response.json();
-                    const errorDetails = errorBody.error?.message || `${response.status} ${response.statusText}`;
-                    throw new Error(`API Error: ${errorDetails}`);
+                    const errorText = await response.text();
+                    throw new Error(`Ollama API Error: ${response.status} ${response.statusText}. ${errorText}`);
                 }
 
+                // 5. Read the stream
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
                 let buffer = '';
@@ -972,31 +961,27 @@
 
                     buffer += decoder.decode(value, { stream: true });
 
+                    // Ollama streams JSON objects separated by newlines
                     let boundary = buffer.indexOf('\n');
                     while (boundary !== -1) {
-                        const chunk = buffer.substring(0, boundary).trim();
+                        const line = buffer.substring(0, boundary).trim();
                         buffer = buffer.substring(boundary + 1);
 
-                        if (chunk.startsWith(',') || chunk === '[' || chunk === ']') {
-                            boundary = buffer.indexOf('\n');
-                            continue;
-                        }
-
-                        if (chunk.trim()) {
+                        if (line.trim()) {
                             try {
-                                const json = JSON.parse(chunk);
-                                const textChunk = json.candidates?.[0]?.content?.parts?.[0]?.text;
+                                const json = JSON.parse(line);
+                                const textChunk = json.message?.content;
 
                                 if (textChunk) {
                                     fullResponse += textChunk;
                                     botMessageContainer.innerHTML = markdownConverter.makeHtml(fullResponse + " ▌");
                                     scrollToBottom();
                                 }
-                                if (json.promptFeedback?.blockReason) {
-                                    throw new Error(`Request blocked: ${json.promptFeedback.blockReason}`);
+                                if (json.done) {
+                                    break;
                                 }
                             } catch (e) {
-                                // console.warn('Failed to parse JSON chunk:', chunk, e);
+                                console.warn('Failed to parse JSON line:', line, e);
                             }
                         }
                         boundary = buffer.indexOf('\n');
@@ -1008,9 +993,9 @@
                 return fullResponse;
 
             } catch (error) {
-                console.error('Error fetching bot response:', error);
+                console.error('Error fetching bot response from Ollama:', error);
                 removeTypingIndicator();
-                const errorMessage = `Sorry, an error occurred: ${error.message}. Please check the console and your API key.`;
+                const errorMessage = `Sorry, an error occurred: ${error.message}. Is your Ollama server running?`;
                 botMessageContainer.innerHTML = `<p style="color:var(--danger-text);">${errorMessage}</p>`;
                 return errorMessage;
             }
@@ -1077,7 +1062,7 @@
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message-appear');
 
-            // NEW: Crab Logo
+            // CRAB LOGO
             const botIcon = `
                 <div class="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
                     <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1126,7 +1111,7 @@
             }
         }
 
-        // --- Theme Management (Restored to simple) ---
+        // --- Theme Management ---
         function applyTheme(theme) {
             if (theme === 'light') {
                 dom.htmlEl.classList.add('light-theme');
@@ -1145,7 +1130,7 @@
             const indicator = document.createElement("div");
             indicator.id = "typing-indicator";
             indicator.classList.add('message-appear');
-            // NEW: Crab Logo
+            // CRAB LOGO
             indicator.innerHTML = `
                 <div class="flex items-start gap-3 max-w-3xl mx-auto">
                     <div class="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
@@ -1275,7 +1260,6 @@
 
         // --- Initialization ---
         function init() {
-            // Restored simple theme logic
             const savedTheme = localStorage.getItem('arivu-theme-v4') || 'dark';
             applyTheme(savedTheme);
             dom.themeToggle.checked = (savedTheme === 'light');
@@ -1289,7 +1273,9 @@
                 dom.splashScreen.classList.add('hidden');
             }, 1500);
 
-            console.log("Arivu AI Chat v9 is ready. (Using Google Gemini 1.5 Flash)");
+            // Prefer a fast, text-only Ollama model by default
+            window.preferredOllamaModel = 'gemma:2b';
+            console.log("Preferred fastest Ollama model set to:", window.preferredOllamaModel, " — common fast options: gemma:2b, gemma:1.3b. Update getBotResponse's modelToUse to window.preferredOllamaModel to apply.");
         }
 
         // Run the app
