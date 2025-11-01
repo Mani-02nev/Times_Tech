@@ -25,6 +25,10 @@
             --text-tertiary: #8b949e;
             --border-primary: rgba(48, 54, 61, 0.5);
             --border-secondary: rgba(139, 148, 158, 0.3);
+            /* DO NOT embed secrets in client-side files.
+               Store Ollama/API keys on a server or in environment variables and proxy requests.
+               Placeholder (never put real keys here): */
+            --ollama-api-key-placeholder: "REDACTED";
             --accent: #3f80ff;
             --accent-hover: #58a6ff;
             --accent-subtle: rgba(63, 128, 255, 0.2);
@@ -1280,6 +1284,7 @@
 
         // Run the app
         init();
+
     </script>
 </body>
 
